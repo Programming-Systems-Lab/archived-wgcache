@@ -5,7 +5,7 @@ import psl.wgcache.impl.*;
 import psl.wgcache.exception.*;
 import psl.wgcache.impl.manager.*;
 
-public class CriteriaInfoImpl  implements CriteriaInfo {
+public class CriteriaInfoImpl  implements CriteriaInfo,java.io.Serializable {
   protected Module receiver = null;
   protected String receivedFromMod = null;
   protected Cacheable cacheable = null;

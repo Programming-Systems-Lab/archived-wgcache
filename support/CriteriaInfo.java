@@ -9,8 +9,7 @@ import psl.wgcache.impl.*;
  * this class must contain all WG cache operations that a Criteria
  * might want to perform.
  */
-public interface CriteriaInfo
-{
+public interface CriteriaInfo {
   // values returned by getReceivedVia()
   public static final int VIA_PULL    = 1;
   public static final int VIA_PUSH    = 2;

@@ -15,7 +15,6 @@ package psl.wgcache.impl.manager;/** Copyright (c) 2000: The Trustees of Colum
  * @author  Alpa
  *  
  */
-
 import psl.wgcache.exception.*;
 import psl.wgcache.roles.*;
 import psl.wgcache.support.*;
@@ -23,14 +22,14 @@ import psl.wgcache.impl.*;
 import java.io.*;
 import java.util.*;
 
-public class WorkgroupImpl  implements Workgroup  {
+public class WorkgroupImpl  implements Workgroup,java.io.Serializable {
   protected Vector memberVec; // Vector of PersonalCacheModules
   private String name;
-  private static WorkgroupManager manager;
+  private static WorkGroupManager manager;
   private Criteria crit;
   private History hist;
  
-  public WorkgroupImpl(String name, WorkgroupManager manager)  {
+  public WorkgroupImpl(String name, WorkGroupManager manager)  {
     super();
     this.name = name;
     this.manager = manager;

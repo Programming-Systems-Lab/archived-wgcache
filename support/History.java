@@ -5,7 +5,7 @@ import psl.wgcache.*;
 import java.util.*;
 
 // Very simple history -- just keeps track of accesses and times
-public class History{
+public class History implements java.io.Serializable{
   public static final int MAX_ACCESSES = 64; // only track the last 64 accesses
   private Hashtable accessHash; // String --> Vector
 

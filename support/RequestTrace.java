@@ -6,7 +6,7 @@ import java.util.Vector;
  * A RequestTrace instance is passed with a push or pull request to a
  * module, to allow that module to tell from whence the request came.
  */
-public class RequestTrace {
+public class RequestTrace implements java.io.Serializable {
   private Vector hops;
   private String requester = null;
 

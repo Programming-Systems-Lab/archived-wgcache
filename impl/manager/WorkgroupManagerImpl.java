@@ -16,48 +16,49 @@ import psl.wgcache.*;
 import psl.wgcache.exception.*;
 import psl.wgcache.impl.*;
 import psl.wgcache.roles.*;
-import psl.groupspace.*;
 import java.util.*;
 import java.io.*;
+import java.rmi.*;
+import java.rmi.server.*;
 
-public class WorkgroupManagerImpl implements java.io.Serializable,WorkgroupManager {
+public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io.Serializable,WorkGroupManager {
   protected static Hashtable workgroups = new Hashtable();;
   protected CacheService cache;
   
-  public WorkgroupManagerImpl()  {   
+  public WorkgroupManagerImpl() throws RemoteException {   
    try {
      cache = new CacheService("WorkGroupManager");
    }catch(Exception e){e.printStackTrace();}
   }
   
-  public Workgroup newWorkgroup(String name) throws WGCException  {
+  public Workgroup newWorkgroup(String name) throws WGCException,RemoteException {
     String wgName;
-    wgName = name;
-        
+    wgName = name;        
     if(workgroups.containsKey(wgName))
       throw new WGCException("Workgroup already exists");
+    
     WorkgroupImpl wg = new WorkgroupImpl(wgName, this);
     log("creating workgroup " + wgName);
     workgroups.put(wgName, wg);
     return wg;
    }
 
-  public void deleteWorkgroup(String name)  {
+  public void deleteWorkgroup(String name) throws RemoteException {
     workgroups.remove(name);
   }
 
-  public Workgroup getWorkgroup(String wgName) throws WGCException  {
+  public Workgroup getWorkgroup(String wgName) throws WGCException,RemoteException  {
     log("getting workgroup " + wgName);
     if(!workgroups.containsKey(wgName))
       throw new NoSuchModuleException(wgName);
     return (Workgroup)workgroups.get(wgName);
   }
   
-  public Enumeration getWorkgroups()  {
+  public Enumeration getWorkgroups() throws RemoteException {
     return workgroups.elements();
   }
 
-  public String[] getWorkgroupNames()  {
+  public String[] getWorkgroupNames() throws RemoteException {
     String[] names = new String[workgroups.size()];
     int i = 0;
     int j=0;
@@ -70,7 +71,7 @@ public class WorkgroupManagerImpl implements java.io.Serializable,WorkgroupManag
     
     return names;
   }  
-  public Cacheable query(Object queryTag)throws WGCException {
+  public Cacheable query(Object queryTag)throws WGCException,RemoteException {
     Cacheable retVal = new Cacheable();
     if(queryTag != null) { 
       if(queryTag instanceof Cacheable){ 
