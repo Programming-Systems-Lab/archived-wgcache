@@ -22,15 +22,15 @@ public class HashtableDBInterface {
     dbname = userTableName+".dat";
     try {
       FileInputStream fis = new FileInputStream(dbname);
-      if (fis != null) { /* Already exists */
-	ObjectInputStream ois = new ObjectInputStream(fis);
-	h = (Hashtable)ois.readObject();
-	ois.close();
-	fis.close();
-      } else {
-	h = new Hashtable();
-      }
-    } catch(Exception e) { e.printStackTrace(); }
+      ObjectInputStream ois = new ObjectInputStream(fis);
+      h = (Hashtable)ois.readObject();
+      ois.close();
+      fis.close();
+    } catch(FileNotFoundException e) { /* Create new hashtable */
+      h = new Hashtable();
+    } catch(Exception e) { /* Something else is wrong */
+      e.printStackTrace();
+    }
   }
     
   public synchronized void shutdown() {
