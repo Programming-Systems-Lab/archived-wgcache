@@ -12,7 +12,6 @@ import psl.wgcache.impl.manager.*;
  * @author  Alpa
  *  
  */
-
  public class Test {
    public static void main(String[] args) {
      String data = "TESTING DATA 1";
@@ -37,6 +36,7 @@ import psl.wgcache.impl.manager.*;
      try {
        if(pcm2!=null) {
        Cacheable result = pcm2.query(x);  
-       System.out.println("RESULT"+result);       }     }catch (WGCException w) {}           pcm1.printJoinedWorkgroupNames();      pcm2.printJoinedWorkgroupNames();
+       System.out.println("RESULT: "+ result.data);       }     }catch (WGCException w) {       System.out.println("Miss");
+     }           //pcm1.printJoinedWorkgroupNames();      //pcm2.printJoinedWorkgroupNames();
   }
 }

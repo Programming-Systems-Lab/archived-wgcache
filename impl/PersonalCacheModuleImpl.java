@@ -30,9 +30,9 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
     this.wgVec = new Vector();
     this.roleName = roleName;
     try {
-     this.cache = new CacheService(roleName);
+      this.cache = new CacheService(roleName);
     }catch(Exception e){
-      System.out.println("CACHE NOT CREATED");    
+      System.out.println("CACHE NOT CREATED");
     }    
     this.manager = new Manager();    
   }
@@ -81,6 +81,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
       else {
         retVal.data = cache.query(queryTag);
         retVal.key = queryTag;
+        System.out.println("Not an instance of Cacheable");
       }
     }else {
       log("QueryTag provided is null");

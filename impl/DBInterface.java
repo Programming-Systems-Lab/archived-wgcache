@@ -18,15 +18,15 @@ public class DBInterface {
     dbname = userTableName;
     tableName = userTableName+"blah";
         try {
-      System.out.println("DBName :" + dbname);
-      System.out.println("TableName :" + tableName);      Class.forName("org.hsql.jdbcDriver");      conn=DriverManager.getConnection("jdbc:HypersonicSQL:"+dbname,"sa","");
+      //System.out.println("DBName :" + dbname);
+      //System.out.println("TableName :" + tableName);      Class.forName("org.hsql.jdbcDriver");      conn=DriverManager.getConnection("jdbc:HypersonicSQL:"+dbname,"sa","");
     }
     catch(Exception e) {      e.printStackTrace();    }    try {
       Statement stat=conn.createStatement();
       stat.execute("CREATE TABLE "+tableName+"(key varchar(2000),data varchar(20000))");    }
     catch(SQLException ex) { //Throw an exception if table already exists 
       // ex.printStackTrace();
-      System.out.println("Table already exists : with the name :" + tableName);
+      //System.out.println("Table already exists : with the name :" + tableName);
     }
     catch(Exception e) {      e.printStackTrace();
     }   
@@ -34,7 +34,7 @@ public class DBInterface {
       e.printStackTrace();
     }
   }  public synchronized Object get(Object queryRequest) {
-    // Create a statement object
+    // Create a statement object   
     ResultSet dbReply = null;
     Object dataReturned = null;    Object keyReturned = null;
     try {      Statement stat=conn.createStatement();      dbReply =stat.executeQuery("SELECT * FROM " + tableName +  " WHERE key = '"+ queryRequest +"'");      if(dbReply.next()) { //if data is found i.e.HIT
@@ -57,11 +57,6 @@ public class DBInterface {
     try  {
       Statement stat=conn.createStatement();      ResultSet result=stat.executeQuery("DELETE FROM " + tableName + " WHERE key='"+ key + "'" );
     }    catch(SQLException ex) {
-        System.out.println("SQL exception: " + ex);    }  }
-  public static void main(String[] args) {    DBInterface db = new DBInterface("WGcache12");      System.out.println("I am done");
-    db.put("k1","Trying1");
-    try {      String s =(String)db.get("k1");      System.out.println("DATA RECEIVED"+s);
-    }catch (Exception e){}    db.shutdown();
-  }}
+        System.out.println("SQL exception: " + ex);    }  }  }
 
 
