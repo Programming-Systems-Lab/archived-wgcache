@@ -22,7 +22,7 @@ public class CacheService implements CacheManager, GroupspaceCallback,
   public long currSize;
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
-  //DBInterface db;    Hashtable db;
+  //DBInterface db;  HashtableDBInterface db;
   
   //Constructor for worklets  
   /*public CacheService(String hn, String rn) throws Exception {    this();    
@@ -35,7 +35,7 @@ public class CacheService implements CacheManager, GroupspaceCallback,
 	}});               
     System.runFinalization(); 
     currSize = 0;
-    db = new Hashtable();
+    db = new HashtableDBInterface(name);
     //db = new  DBInterface(name);
   }
   /*public void sendWorkletTo(String targetHost, String targetRole) {
