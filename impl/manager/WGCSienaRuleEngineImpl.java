@@ -18,20 +18,24 @@ import java.io.*;
 import java.util.*;import java.net.*;
 import siena.*;
 
-public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {  Siena si = null;  WorkgroupManagerImpl wgm = null;  
+public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {  Siena si = null;
+  HierarchicalDispatcher hd = null;  WorkgroupManagerImpl wgm = null;  
   public WGCSienaRuleEngineImpl(WorkgroupManagerImpl wgm) {
     this.wgm = wgm;
-        String master = "senp://canal.psl.cs.columbia.edu:4321";    HierarchicalDispatcher hd = new HierarchicalDispatcher(); 
+        String master = "senp://canal.psl.cs.columbia.edu:4321";    hd = new HierarchicalDispatcher(); 
     si = hd;    try { 
       hd.setReceiver(new TCPPacketReceiver(9156));      hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }     catch(siena.InvalidSenderException e) {      e.printStackTrace();     } 
     catch(IOException ex) {
       ex.printStackTrace();      }  
     Thread t = new Thread(this); 
     t.start();    Filter f = new Filter();
-    f.addConstraint("source", "EventDistiller");     f.addConstraint("type", "FiredRule");    
+    f.addConstraint("Source", "EventDistiller");     f.addConstraint("Type", "FiredRule");    
     try {      si.subscribe(f, this);     }
     catch(siena.SienaException se) {       se.printStackTrace();    }    catch(Exception e){      e.printStackTrace();
-    }        System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
+    }        System.out.println("WGCSienaRuleEngineImpl subscribed to " + f);     Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        hd.shutdown();
+      } });
   }
     public void run() { }    public void what_do_i_do_next(String instigator, Cacheable dataHandle) {
     try {
@@ -49,17 +53,18 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
     } catch(siena.SienaException se) {
       se.printStackTrace();
     } 
-  }    public void notify(Notification n) {    Cacheable dataHandle = new Cacheable();
+  }    public void notify(Notification n) {
+    this.log("Received a notification\n" + n);    Cacheable dataHandle = new Cacheable();
     AttributeValue av = n.getAttribute("Action");    if (av != null) {      String action = (av.stringValue()); 
       if (action.equals("Push")) {
-        dataHandle.key = n.getAttribute("DataHandle");        if(n.getAttribute("Target").stringValue().equals("Workgroup")) {
+        dataHandle.key = n.getAttribute("DataHandle").stringValue();
+        log("attribute Target: " + n.getAttribute("Target").stringValue());        if (n.getAttribute("Target").stringValue().equals("Workgroup")) {
           try {
             wgm.pushToWorkGroup(n.getAttribute("Instigator").stringValue(),dataHandle,n.getAttribute("TargetName").stringValue());
-          } catch(Exception e){}        }        else {          if(n.getAttribute("Target").stringValue().equals("Module")) {
-            try {
-              wgm.pushToModule(n.getAttribute("Instigator").stringValue(),dataHandle,n.getAttribute("TargetName").stringValue());            } catch(Exception e) {              e.printStackTrace();            }
-          }
-        }      }else if (action.equals("Pull")) {        dataHandle.key = n.getAttribute("DataHandle");
+          } catch(Exception e){}        } else if (n.getAttribute("Target").stringValue().equals("Module")) {
+          try {
+            wgm.pushToModule(n.getAttribute("Instigator").stringValue(),dataHandle,n.getAttribute("TargetName").stringValue());          } catch(Exception e) {            e.printStackTrace();          }
+        }      } else if (action.equals("Pull")) {        dataHandle.key = n.getAttribute("DataHandle").stringValue();
         try {
           wgm.pullFrom(dataHandle,n.getAttribute("TargetName").stringValue());
         } catch(Exception e){          e.printStackTrace();

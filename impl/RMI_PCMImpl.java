@@ -14,8 +14,8 @@ import java.rmi.*;
 import java.rmi.server.*;
 public class RMI_PCMImpl extends UnicastRemoteObject implements RMI_PCM {
   PersonalCacheModuleImpl parent;   RMI_PCMImpl(PersonalCacheModuleImpl pcmi) throws RemoteException {      parent = pcmi;
-    try {
-      Naming.rebind(parent.getName(), this);
+    try {      String url = parent.getURL();
+      Naming.rebind(url, this);
     } catch (Exception e) {
       System.out.println("ERROR: RMI_PCMimpl could not register");
       e.printStackTrace();

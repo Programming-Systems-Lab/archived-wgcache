@@ -41,7 +41,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     this.prop = new Properties();
     this.wgVec = new Vector();
     this.roleName = roleName;    try {
-      this.url = InetAddress.getLocalHost().getHostName()+ "/"+ roleName;
+      this.url = InetAddress.getLocalHost().getHostName()+ roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);      log(url);    }catch (Exception e) {}
         try {
       this.cache = new CacheService(roleName);
@@ -110,7 +110,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
   public void pushToWorkgroup(Cacheable toBePushed){		
     for(int i = 0; i < wgVec.size(); i++) {
       String wgName = (String)wgVec.elementAt(i);
-      log("THE workgroup being pushed to is :" + wgName);      try {                wgm.pushToWorkGroup(roleName,toBePushed,wgName);      }catch (Exception e) {
+      log("The workgroup being pushed to is :" + wgName);      try {                wgm.pushToWorkGroup(roleName,toBePushed,wgName);      }catch (Exception e) {
         System.out.println("ERROR: Server connection problem in pushToWorkgroup");        e.printStackTrace();      }
     }
   }

@@ -74,21 +74,31 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
   }
 
   void pushToModule(String dataSrc, Cacheable toBePushed,String memName) throws WGCException {
+    log("Entered pushToModule: " + dataSrc + " " + memName);
     Workgroup target = null;
     String wgName = null;    
-    for(Enumeration e = workgroups.elements(); e.hasMoreElements();){
-      target = (Workgroup)e.nextElement();
-      if(target.containsMember(memName))
-         break;
-    }  
-    if(target == null)
+    
+    log("enumeration: " + workgroups.size());
+    for (Enumeration e = workgroups.elements(); e.hasMoreElements();){
+      target = (Workgroup) e.nextElement();
+      log("workgroup: " + target.getName());
+      if (target.containsMember(dataSrc) && target.containsMember(memName)) {
+        log("Found wg w/ both dataSrc & memName: " + target.getName());
+        break;
+      }
+    }
+    
+    if (target == null) {
+      log("NULL");
       return;
+    }     
     wgName = target.getName();
-    log("pushing to workgroup "+wgName);
+    log("wgName: " + wgName);
     if(!workgroups.containsKey(wgName))
       throw new NoSuchModuleException(wgName);
-    Workgroup wg = getWorkgroup(wgName);    
+    Workgroup wg = getWorkgroup(wgName);       
     wg.pushToMember(dataSrc,toBePushed,memName);
+
   }
   
   public void accessNotify(String pcmName, Cacheable data) throws RemoteException {

@@ -51,7 +51,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     //1. check with all the members of the workgroup.
 		log("Size of the workgroup is:"+ memberVec.size());
 		Cacheable result = null;
-		if(memberVec.size() > 0){      for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        workgpMemURL = "rmi://"+ ((String)memberVec.get(e.nextElement()));
+		if(memberVec.size() > 0){      for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        workgpMemURL = ((String)memberVec.get(e.nextElement()));
         log("Member URL :" +workgpMemURL);
         try {           memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem while pulling from " + workgpMemURL);
           ex.printStackTrace();        }
@@ -88,39 +88,38 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 	}
 	
   public void pushToWorkgroup(String memDataSrc, Cacheable x)  {    Cacheable toBePushed = null;
-    log("received a pushed object: \"" + x.key + "\"");    				    if(memberVec.size() > 0){
+    log("received a pushed object: " + x.key );    				    if(memberVec.size() > 0){
       String srcUrl = (String)memberVec.get(memDataSrc);
-      try {        memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        toBePushed = memPCM.query(x.key);
+      try {        memPCM = (RMI_PCM) Naming.lookup(srcUrl);        toBePushed = memPCM.query(x.key);
       }catch(Exception e){
         e.printStackTrace();
       }
-      if(toBePushed ==null)        return;
-      
+      if(toBePushed ==null)        return;     
       for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        
         String currKey = (String)e.nextElement();
         if(currKey.equalsIgnoreCase(memDataSrc))
           continue;
-                workgpMemURL = "rmi://"+ ((String) memberVec.get(currKey));
+                workgpMemURL = ((String) memberVec.get(currKey));
         log("Member URL :" +workgpMemURL);
-        try {          memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);
-          memPCM.WGCPut(toBePushed);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
-          ex.printStackTrace();        }      }      }  }    public boolean containsMember(String pcmName){
-    return(this.memberVec.contains(pcmName));    }
+        try {          RMI_PCM memPCM2 = (RMI_PCM) Naming.lookup(workgpMemURL);
+          memPCM2.WGCPut(toBePushed);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
+          ex.printStackTrace();        }      }     }  }    public boolean containsMember(String pcmName){    log("entered containsMember in " + this.getName() + " w/ " + pcmName);    boolean retVal = this.memberVec.containsKey(pcmName);    log("and returns: " + retVal);
+    return(retVal);    }
   
   public void pushToMember (String memDataSrc, Cacheable x, String targetMember) {
     Cacheable toBePushed = null;
     log("received a pushed object: \"" + x.key + "\"");    	
-    if(memberVec.size() > 0){
-      String srcUrl = (String)memberVec.get(memDataSrc);
-      try {        memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        toBePushed = memPCM.query(x.key);
-      }      catch (Exception ex) {        System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
-        ex.printStackTrace();      }      
+    if(memberVec.size() > 0){      log("DATA SOURCE: " + memDataSrc);
+      String srcUrl = (String) memberVec.get(memDataSrc);
+      try {        memPCM = (RMI_PCM)Naming.lookup(srcUrl);        toBePushed = memPCM.query(x.key);
+      }      catch (Exception ex) {        System.out.println("ERROR: Server connection problem in pushToMember to: " + srcUrl);
+        ex.printStackTrace();      }
       if(toBePushed ==null)        return;
       
-      workgpMemURL = "rmi://"+ ((String) memberVec.get(targetMember));
-      log("Member URL :" +workgpMemURL);
-      try {        memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);
-        memPCM.WGCPut(toBePushed);      }      catch (Exception ex) {        System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
+      workgpMemURL = ((String) memberVec.get(targetMember));
+      log("Member URL: " +workgpMemURL);
+      try {        RMI_PCM memPCM2 = (RMI_PCM) Naming.lookup(workgpMemURL);
+        memPCM2.WGCPut(toBePushed);      }      catch (Exception ex) {        System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
         ex.printStackTrace();      }    }  }
     public boolean compareTo (Workgroup fromClient) {
     if(fromClient == null) {
@@ -139,7 +138,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
   }
 
   public void addMember(String memberUrl, String PCMName)  {
-    log("adding member " + memberUrl);    memberVec.put(PCMName,memberUrl);    
+    //log("adding member --- " + "key: " + PCMName + ", value: " + memberUrl);    memberVec.put(PCMName,memberUrl);    
   }
 
   public void removeMember(String PCMName)  {
