@@ -1,10 +1,23 @@
 package psl.wgcache.impl;
-
+/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+ * All Rights Reserved.
+ * 
+ *  Name:        CacheService.java *  Description: This class implements the real Cache.It is the Cache Interface used by the PersonalCacheModule 
+ *                and the Shared Cache. *                It provides the standard methods like put and query
+ *                provides a key if the data is not provided with a key for future use.
+ *                In addition it performs other functions like *                    - purges the data if the cache is full and 
+ *                    - update the history and the weight of the data when it is accessed. *                 
+ * 
+ * Construction: Cache by opening connection with the underlying database.
+ *              
+ *   * 
+ * @author  Alpa
+ *  
+ */
 import psl.wgcache.exception.*;
 import psl.wgcache.roles.*;
 import java.util.*;
 import java.io.*;
-
 
 public class CacheService implements CacheManager {
   public static final String roleName = "CacheManager";
@@ -29,7 +42,8 @@ public class CacheService implements CacheManager {
     //db = new  DBInterface(name);
     db = new HashtableDBInterface(name);
   }
-  public Object query(Object queryTag)throws WGCException {    //need to change this to     Object result = db.get(queryTag);    if(result == null) {      System.out.println(serviceName + ":query(MISS)\" " + queryTag);
+  public Object query(Object queryTag)throws WGCException {
+    Object result = db.get(queryTag);    if(result == null) {      System.out.println(serviceName + ":query(MISS)\" " + queryTag);
 			//throw new WGCException("MISS");
 		}else 
 			System.out.println(serviceName + " :query(HIT)\" " + queryTag + "\" : " + result);

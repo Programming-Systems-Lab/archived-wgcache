@@ -1,4 +1,20 @@
-package psl.wgcache.impl.manager;
+package psl.wgcache.impl.manager;/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+ * All Rights Reserved.
+ * 
+ *  Name:        WorkgroupImpl.java
+ *  *  Description: This class implements a Workgroup. *               It maintains a list of all the member personalcachemodules. *               Provides functions like pullFrom, pushTo to perform the actions
+ *                 of a group criteria -applies citeria everytime these functions are called. *               Also provides functions to remove and add and other functions for the member cachemodules.
+ *                
+ *          
+ * Construction: A Workgroup with specified name and a list of the members and a criteria for the workgroup.
+ * 
+ * 
+ * TODO: need to maintain history of all the accesses --- not too sure till what depth and if required.
+ *              
+ *   
+ * @author  Alpa
+ *  
+ */
 
 import psl.wgcache.exception.*;
 import psl.wgcache.roles.*;
@@ -80,8 +96,7 @@ public class WorkgroupImpl  implements Workgroup  {
     // Apply criteria
 		Workgroup wg;
 		for(int i = 0; i < this.memberVec.size(); i++){
-			pcm = (PersonalCacheModule)memberVec.elementAt(i);
-			CriteriaInfo critInfo = new CriteriaInfoImpl(this, x, pcm, trace,CriteriaInfo.VIA_PUSH, hist);
+			CriteriaInfo critInfo = new CriteriaInfoImpl(this, x,trace,CriteriaInfo.VIA_PUSH, hist);
 			crit.apply(critInfo);
 		}
   }

@@ -1,5 +1,15 @@
 package psl.wgcache.impl;
-
+/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+ * All Rights Reserved.
+ * 
+ *  Name:        DBInterface.java *  Description: This class implements a DBInterface with a hsql as the database.
+ *               NOTE: the db connection is made using the default hsql user id "sa" with no password. * 
+ * Construction: A table if one exists or a create a new table.
+ *              
+ *   * 
+ * @author  Alpa
+ *  
+ */
 import java.util.*;
 import java.io.*;
 import java.sql.*;

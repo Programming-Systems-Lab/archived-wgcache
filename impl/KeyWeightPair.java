@@ -1,25 +1,29 @@
 package psl.wgcache.impl; 
 
+/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+  *  All Rights Reserved.
+  
+  *  Name:        KeyWeightPair class
+  *  Description: Represents the weight assigned to each key corresponding to the data in the cache.
+  *               The weight is a combination of the time since it has been in cache and the size.
+  *               LRU combined with size of the data.
+  *  
+  * CONSTRUCTION: initialise size and key
+  * 
+  * ******************PUBLIC OPERATIONS************************************************
+  * void calculateWeight( KeyWeightPair )  --> calculate weight for the associated key
+  *  void printElements( )                  --> print members
+  * ***********************************************************************************
+  * 
+  * 
+  * @author Alpa 
+ */ 
 
 import psl.wgcache.exception.*;
 import java.io.*;
 import java.util.*;
 
-// KeyWeightPair class
-//
-// CONSTRUCTION: initialise size and key
-//
-// ******************PUBLIC OPERATIONS************************************************
-// void calculateWeight( KeyWeightPair )  --> calculate weight for the associated key
-// void printElements( )                  --> print members
-// ***********************************************************************************
-
-
-/**
- * Implements a key-weight pair.
- * @author Alpa 
-*/
-public class KeyWeightPair implements Comparable {
+ public class KeyWeightPair implements Comparable {
   public KeyWeightPair() {}
   
   public KeyWeightPair(Object key, long size) {

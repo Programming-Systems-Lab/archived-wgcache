@@ -1,5 +1,16 @@
 package psl.wgcache.impl;
-import java.io.*;
+
+/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+  *  All Rights Reserved.
+  
+  *  Name:        Oracle.java 
+  *  Description: A Dummy Oracle to test the SienaInterface.
+  * 
+  *  Construction: sets a master on port 3137 of the localhost unless specified. 
+  * 
+  * 
+  * @author Alpa 
+ */ import java.io.*;
 import siena.*;
 
 class Oracle implements Runnable, Notifiable {

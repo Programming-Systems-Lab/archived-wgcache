@@ -1,29 +1,33 @@
 package psl.wgcache.impl; 
+/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+ * All Rights Reserved.
+ * 
+ *  Name:        BinaryHeap.java *  Description: This class implements a Binary heap. *               It is the data structure used to decide the data that should be purged when the cache is full.
+ *               Note that all "matching" is based on the compareTo method.             
+ *
+ * Construction: A Binary heap with optional capacity (that defaults to 100)
+ * 
+ *
+ *  *******************PUBLIC OPERATIONS*********************
+ *  void insert( x )       --> Insert x
+ *  Comparable deleteMax( )--> Return and remove largest item
+ *  Comparable findMax( )  --> Return largest item
+ *  boolean isEmpty( )     --> Return true if empty; else false
+ *  boolean isFull( )      --> Return true if full; else false
+ *  void makeEmpty( )      --> Remove all items
+ *  void printElements()   --> Print the array.
+ * 
+ *  ******************ERRORS********************************
+ *  Throws Overflow if capacity exceeded  *  * 
+ * @author  Alpa
+ *  
+ */
 
 import psl.wgcache.exception.*;
 import java.io.*;
 import java.util.*;
 
-// BinaryHeap class
-//
-// CONSTRUCTION: with optional capacity (that defaults to 100)
-//
-// ******************PUBLIC OPERATIONS*********************
-// void insert( x )       --> Insert x
-// Comparable deleteMax( )--> Return and remove largest item
-// Comparable findMax( )  --> Return largest item
-// boolean isEmpty( )     --> Return true if empty; else false
-// boolean isFull( )      --> Return true if full; else false
-// void makeEmpty( )      --> Remove all items
-// void printElements()   --> Print the array.
-// ******************ERRORS********************************
-// Throws Overflow if capacity exceeded
 
-/**
- * Implements a binary heap.
- * Note that all "matching" is based on the compareTo method.
- * @author Alpa 
-*/
 public class BinaryHeap {
    /**
    * Construct the binary heap.

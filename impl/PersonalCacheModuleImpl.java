@@ -1,19 +1,17 @@
-package psl.wgcache.impl;
-
-import psl.wgcache.exception.*;
+package psl.wgcache.impl;/** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
+ * All Rights Reserved.
+ *  * Name:        PersonalCacheModuleImpl.java * 
+ * Description: This class is the interface/client to the WorkgroupCache.
+ *              It represents the personal cache module which is the local cache. *              It provides methods to put,query the cache and to join,leave,list workgroups.  *              In addition it allows methods like pushToWorkgroup, pullFrom,pushTo  *              that can be used when a workgroup criteria is applied. * Construction:Creates a new Cache Module with the specified roleName.
+ * 
+ * 
+ * @author  Alpa
+ *  
+ */import psl.wgcache.exception.*;
 import psl.wgcache.roles.*;
 import psl.wgcache.impl.manager.*;
 import psl.wgcache.support.*;
 import java.util.*;
-
-/**
- * This class is the interface to the WorkgroupCache.
- * 
- * It provides methods to put,query the cache and to join,leave,list workgroups.
- * 
- * @author  Alpa
- *  
- */
 
 public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   protected Criteria crit;
