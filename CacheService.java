@@ -24,6 +24,13 @@ package psl.wgcache;
 import java.util.*;
 import java.io.*;
 
+interface CacheServiceDB {
+	public Object get(Object queryTag);
+	public void put(Object key, Object data);
+	public void clear();
+	public void shutdown();
+}
+
 public class CacheService implements Serializable  {
   public static final String roleName = "CacheManager";
   public static final String serviceName = "Cache";
@@ -33,6 +40,8 @@ public class CacheService implements Serializable  {
   public long currSize;
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
+
+	// private CacheServiceDB db;
   // public DBInterface db;  
   // public transient HashtableDBInterface db;
   public HashtableDBInterface db;
@@ -47,7 +56,7 @@ public class CacheService implements Serializable  {
     System.runFinalization(); 
     currSize = 0;
     // db = new Hashtable();
-    // db = new  DBInterface(name);
+    // db = new DBInterface(name);
     db = new HashtableDBInterface(name);
   }
   public Object query(Object queryTag)throws WGCException {

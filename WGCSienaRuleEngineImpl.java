@@ -24,50 +24,56 @@ import java.util.*;
 import java.net.*;
 
 import siena.*;
-import psl.kx.*;
+import psl.kx.*;import psl.xues.EventDistiller;
 
 public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {
-  Siena si = null;
-  HierarchicalDispatcher hd = null;
-  WorkgroupManagerImpl wgm = null;
+  private Siena si = null;
+  private HierarchicalDispatcher hd = null;
+  private WorkgroupManagerImpl wgm = null;  protected Notifiable InternalED_RuleEngine = null;  private WGCSienaRuleEngineImpl mySelf = null;
   
-  public WGCSienaRuleEngineImpl(WorkgroupManagerImpl wgm) {
+  public WGCSienaRuleEngineImpl(WorkgroupManagerImpl wgm) {    mySelf = this;
     this.wgm = wgm;
 
-    Properties p = new Properties();
-    try {
-      FileInputStream fis = new FileInputStream(".siena_master");
-      p.load(fis);
-    } catch (IOException ioe) {
-      System.out.println("Warning: can't open properties file; using default: senp://canal:4321");
-      System.out.println(ioe);
-    }
-    String master = p.getProperty("sienaURL", "senp://canal.psl.cs.columbia.edu:4321");
-    hd = new HierarchicalDispatcher(); 
-    si = hd;
-    try { 
-      hd.setReceiver(new TCPPacketReceiver(9156));
-      hd.setMaster(master);
-      System.out.println("WgCache Siena master is " + master);
-    } catch(siena.InvalidSenderException e) {
-      e.printStackTrace(); 
-    } catch(IOException ex) {
-      ex.printStackTrace();  
-    }  
-    Thread t = new Thread(this); 
-    t.start();
-    Filter f = new Filter();
-    f.addConstraint("Source", "EventDistiller"); 
-    f.addConstraint("Type", "FiredRule");    
+    String sienaMaster = null;    if ((sienaMaster = System.getProperty("SienaMaster")) != null) {      log("Using siena to connect with the Event Distiller Rule Engine");      InternalED_RuleEngine = null;
+      /*      Properties p = new Properties();
+      try {
+        FileInputStream fis = new FileInputStream(".siena_master");
+        p.load(fis);
+      } catch (IOException ioe) {
+        System.out.println("Warning: can't open properties file; using default: senp://canal:4321");
+        System.out.println(ioe);
+      }
+      */
+      String master = sienaMaster; // p.getProperty("sienaURL", "senp://canal.psl.cs.columbia.edu:4321");      hd = new HierarchicalDispatcher(); 
+      si = hd;
+      try { 
+        hd.setReceiver(new TCPPacketReceiver(9156));
+        hd.setMaster(master);
+        System.out.println("WgCache Siena master is " + master);
+      } catch(siena.InvalidSenderException e) {
+        e.printStackTrace(); 
+      } catch(IOException ex) {
+        ex.printStackTrace();  
+      }  
+      Thread t = new Thread(this); 
+      t.start();
+      Filter f = new Filter();
+      f.addConstraint("Source", "EventDistiller"); 
+      f.addConstraint("Type", "FiredRule");    
 
-    try {
-      si.subscribe(f, this); 
-    } catch(siena.SienaException se) { 
-      se.printStackTrace();
-    } catch(Exception e){
-      e.printStackTrace();
-    }    
-    System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
+      try {
+        si.subscribe(f, this); 
+      } catch(siena.SienaException se) { 
+        se.printStackTrace();
+      } catch(Exception e){
+        e.printStackTrace();
+      }    
+      System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
+    } else {      log("Using an embedded Event Distiller Rule Engine");
+      (new Thread() {
+        public void run() {
+          log("started embedded Event Distiller Rule Engine in a separate thread");          InternalED_RuleEngine = new EventDistiller(mySelf);        }      }).start();
+    }
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
 				log("shutting down WGCSienaRuleEngineImpl");
@@ -77,7 +83,7 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
   }
   
   public void run() {
-		while (true) { try { Thread.currentThread().sleep(5000); log(" . "); } catch (InterruptedException ie) { } }
+		// while (true) { try { Thread.currentThread().sleep(5000); log(" . "); } catch (InterruptedException ie) { } }
 	}
   
   public void what_do_i_do_next(String instigator, Cacheable dataHandle) {
@@ -99,11 +105,14 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
     metaData.put("DataHandle", new siena.AttributeValue((String) dataHandle.key));
     
     Notification n = KXNotification.EDInputKXNotification("psl.wgcache.impl.WGCSienaInterface",SrcId,metaData);
-    try {
-      si.publish(n);
+        log("InternalED_RuleEngine is: " + InternalED_RuleEngine);
+        try {      if (InternalED_RuleEngine != null) {
+        // inform embedded ED-rule-engine of this put-event
+        InternalED_RuleEngine.notify(n);      } else {
+        // send put-event to ED-rule-engine via Siena
+        si.publish(n);      }
     } catch(siena.SienaException se) {
-      se.printStackTrace();
-    } 
+      se.printStackTrace();    } 
   }
   
   public void notify(Notification n) {
