@@ -11,7 +11,7 @@ package psl.wgcache.impl;/** Copyright (c) 2000: The Trustees of Columbia Univ
 import java.util.*;
 import java.io.*;
 
-public class HashtableDBInterface {  private String TABLENAME;  private final String CLASSNAME   = "HashtableDBInterface";
+public class HashtableDBInterface implements Serializable {  private String TABLENAME;  private final String CLASSNAME   = "HashtableDBInterface";
   /* Name of database */
   private String dbname;          
     

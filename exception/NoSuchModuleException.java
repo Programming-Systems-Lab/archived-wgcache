@@ -5,6 +5,6 @@ public class NoSuchModuleException
 {
   public NoSuchModuleException(String mod)
   {
-    super("No such module: \"" + mod + "\"");
+    super("No such module: " + mod );
   }
 }

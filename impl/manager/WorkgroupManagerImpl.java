@@ -18,13 +18,13 @@ import psl.wgcache.impl.*;
 import psl.wgcache.roles.*;
 import psl.groupspace.*;
 import java.util.*;
+import java.io.*;
 
-public class WorkgroupManagerImpl implements WorkgroupManager {
-  protected Hashtable workgroups;
+public class WorkgroupManagerImpl implements java.io.Serializable,WorkgroupManager {
+  protected static Hashtable workgroups = new Hashtable();;
   protected CacheService cache;
   
-  public WorkgroupManagerImpl()  {
-   workgroups = new Hashtable();
+  public WorkgroupManagerImpl()  {   
    try {
      cache = new CacheService("WorkGroupManager");
    }catch(Exception e){e.printStackTrace();}

@@ -26,7 +26,7 @@ import java.util.*;
 public class WorkgroupImpl  implements Workgroup  {
   protected Vector memberVec; // Vector of PersonalCacheModules
   private String name;
-  private WorkgroupManager manager;
+  private static WorkgroupManager manager;
   private Criteria crit;
   private History hist;
  

@@ -22,23 +22,23 @@ import psl.wgcache.impl.manager.*;
     String data = "TESTING DATA 1";
     Cacheable x = new Cacheable("TAG1",data,data.length());
     PersonalCacheModuleImpl pcm1 = new PersonalCacheModuleImpl("OracleTest");
-    PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("ParserTest");
+    PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("ParserTest");    //System.out.println("Done creating the personal cache modules");
     try {
       pcm1.createWorkgroup("Oracle-Parser");
       System.out.println("PCM1 joined Oracle-Parser");
     }catch (WGCException w){}
     if(pcm1!=null) {
       pcm1.put(x);       
-    } 
-    try {
-      pcm2.createWorkgroup("Parser");
-      System.out.println("PCM2 joined Parser");
-    }catch (WGCException w){}
+    }         //pcm1.printAllWorkgroupNames();
     try {
       pcm2.joinWorkgroup("Oracle-Parser");
       System.out.println(" PCM2 joined Oracle-Parser");
-    }catch (WGCException w){
-       System.out.println("FAILED to join the group Oracle-Parser");    }    try {
+    }catch (Exception w){      w.printStackTrace();
+      System.out.println("FAILED to join the group Oracle-Parser");    }
+    try {
+      pcm2.createWorkgroup("Parser");
+      System.out.println("PCM2 joined Parser");
+    }catch (WGCException w){}    //pcm1.printAllWorkgroupNames();    //pcm2.printAllWorkgroupNames();            try {
       if(pcm2 !=null) {
         //Cacheable result = pcm1.query(x);  				Cacheable result = pcm2.pullFrom(new RequestTrace(),x);  
 				//pcm1.pushToWorkgroup(x);

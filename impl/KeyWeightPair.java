@@ -23,7 +23,7 @@ import psl.wgcache.exception.*;
 import java.io.*;
 import java.util.*;
 
- public class KeyWeightPair implements Comparable {
+ public class KeyWeightPair implements Comparable, Serializable {
   public KeyWeightPair() {}
   
   public KeyWeightPair(Object key, long size) {

@@ -19,7 +19,7 @@ import psl.wgcache.roles.*;
 import java.util.*;
 import java.io.*;
 
-public class CacheService implements CacheManager {
+public class CacheService implements CacheManager,java.io.Serializable  {
   public static final String roleName = "CacheManager";
   public static final String serviceName = "Cache";
   
@@ -29,13 +29,13 @@ public class CacheService implements CacheManager {
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
   //public DBInterface db;  
-  public HashtableDBInterface db;
+  public HashtableDBInterface db;  //public Hashtable db;
 
   public CacheService(String name) throws Exception {
-    Runtime.getRuntime().addShutdownHook(new Thread() {
+    /*Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         shutdown();
-      }    });               
+      }    });*/
     System.runFinalization(); 
     currSize = 0;
     //db = new Hashtable();
@@ -85,7 +85,7 @@ public class CacheService implements CacheManager {
       this.put(key,data,size);
     }
     db.put(key,data);	     }  public synchronized void shutdown() {
-    // System.out.println("Shutting down");    db.shutdown();
+    System.out.println("Shutting down");    db.shutdown();
   }  public void finalize(){    System.out.println("BYE");    shutdown();   }} 
 
 

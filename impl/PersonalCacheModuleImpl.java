@@ -7,35 +7,41 @@ package psl.wgcache.impl;/** Copyright (c) 2000: The Trustees of Columbia Univ
  * 
  * @author  Alpa
  *  
- */import psl.wgcache.exception.*;
+ */import psl.wgcache.exception.*;
 import psl.wgcache.roles.*;
 import psl.wgcache.impl.manager.*;
 import psl.wgcache.support.*;
 import java.util.*;
-
+import java.io.*;
+import java.rmi.*;
+import java.rmi.server.*;
 public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   protected Criteria crit;
   protected Vector wgVec;
-  protected CacheService cache;
+  protected CacheService cache = null;
   private String roleName;
-  private WorkgroupManagerImpl wgm;
-  private Manager manager;
-
+  private static WorkgroupManagerImpl wgm;
+  private static Manager manager = null;  private String filename;  private Properties prop;  private String url;  
   /**
    * Constructs a new Cache Module with the specified roleName.
-   */
+   */    
   public PersonalCacheModuleImpl(String roleName){
-    this.wgVec = new Vector();
+    this.filename = "WorkgroupServer.conf";  //hardcoded bad needs to be passed as an argument....
+    this.prop = new Properties();    this.wgVec = new Vector();
     this.roleName = roleName;
     try {
       this.cache = new CacheService(roleName);
-    }catch(Exception e){
+    }catch(Exception e){      e.printStackTrace();
       System.out.println("CACHE NOT CREATED");
-    }    
-    this.manager = new Manager();    
-  }
-  public String getName() {
-    return roleName;
+    } 
+    System.setSecurityManager(new java.rmi.RMISecurityManager());
+    try {      FileInputStream in = new FileInputStream(filename);
+      prop.load(in);        url = prop.getProperty("workgroupserver.url");      if(url == null)        url = "rmi://disco.cs.columbia.edu/manager";
+      //System.out.println("URL IS:" + url);
+      //manager = new ManagerImpl();      this.manager = (Manager)Naming.lookup(url);    }catch (Exception e) {      System.out.println("ERROR: Could not connect to the server");      e.printStackTrace();
+    }
+  }  
+  public String getName() {                    return roleName;
   }
   /**
    * caches the specified data.
@@ -68,15 +74,15 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * 
    */
   
-  public Cacheable query(Object queryTag)throws WGCException {
+  public Cacheable query(Object queryTag)throws WGCException {    
     Cacheable retVal = new Cacheable();
     if(queryTag != null) { 
       if(queryTag instanceof Cacheable){ 
-        System.out.println("Is an instance of Cacheable");
-				log("about to blow off");
+        log("Is an instance of Cacheable");
+				//log("about to blow off");
 	   		Object temp = cache.query(((Cacheable)queryTag).key);
-				log("JUST CHECKING WITHIN THE LOOP");
-				log("in the finally wonder if it comes here");
+				//log("JUST CHECKING WITHIN THE LOOP");
+				//log("in the finally wonder if it comes here");
 				if(temp !=null) {
 				  retVal.data = temp;
 					retVal.key = ((Cacheable)queryTag).key;
@@ -220,10 +226,14 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * @exception   WGCException if the workgroup already exists.
    */
   public void createWorkgroup(String wgName) throws WGCException  {
-    wgm = manager.getManager();
+    if (manager == null) 
+      System.out.println("MANAGER IS NULL");    try {      wgm = this.manager.getManager();
+      if (wgm == null)        System.out.println("WGM IS NULL");            }catch (Exception e){
+      System.out.println("ERROR: Server connection problem in createWorkgroup");
+      e.printStackTrace();    }    
     Workgroup wg = wgm.newWorkgroup(wgName);
 		wg.addMember(this);
-    wgVec.addElement(wg);    
+    wgVec.addElement(wg);  
   }
   
   /**
@@ -233,7 +243,9 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * 
    */
   public void joinWorkgroup(String wgName) throws WGCException  {
-    wgm = manager.getManager();
+     try {      wgm = manager.getManager();    }catch (Exception e){
+      System.out.println("ERROR: Server connection problem in joinWorkgroup");
+      e.printStackTrace();    }
     Workgroup wg = wgm.getWorkgroup(wgName);
     if(wg == null)
       throw new NoSuchModuleException("No such workgroup");
