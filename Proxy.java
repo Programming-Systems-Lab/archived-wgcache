@@ -108,7 +108,7 @@ public class Proxy extends Thread {
          System.out.println("Hit! Getting from cache!!!");
 
         // Send the bits to client
-        byte data[] = ((String) retVal.data).getBytes();            
+        byte data[] = ((String) retVal.data).getBytes();
         // System.out.println(" * * * The data from the cache recieved is: " + data + "and the count is : " + data.length);
         OutputStream out = ClientSocket.getOutputStream();
         out.write(data);
@@ -247,6 +247,8 @@ public class Proxy extends Thread {
 					// ALPA fileOutputStream.write(line);
           
           payloadForCache = new String(line);
+          System.out.println("******************************************************************");
+          System.out.println("ATTN LINE : " + payloadForCache);
           cache.DecrementFreeSpace(line.length,url.toString());
 				}
 				// 
@@ -271,6 +273,8 @@ public class Proxy extends Thread {
               // System.out.println("The line being written to the file is : " + line);
               
               payloadForCache = payloadForCache.concat(new String(line));
+              System.out.println("******************************************************************");
+              System.out.println("ATTN LINE : " + payloadForCache);
 							cache.DecrementFreeSpace(line.length,url.toString());
 						}
 
@@ -290,20 +294,24 @@ public class Proxy extends Thread {
 				byte data[] = new byte[2000];
 				int count;
 				while (( count  = in.read(data)) > 0) {
-                                    // Send bits to client
-                                    out.write(data,0,count);
-                                    if (isCachable) {
-                                        // Write bits to file
-                                        line  = new byte[count];
-                                        System.arraycopy(data,0,line,0,count);
-                                        payloadForCache = payloadForCache.concat(new String(line));
-                                        // ALPA fileOutputStream.write(line);
-                                        // System.out.println("LINE : " + line);
-                                        cache.DecrementFreeSpace(count,url.toString());
-                                    }				}
-				out.flush();
-        
+          // Send bits to client
+          out.write(data,0,count);
+          if (isCachable) {
+            // Write bits to file
+            line  = new byte[count];
+            System.arraycopy(data,0,line,0,count);
+            payloadForCache = payloadForCache.concat(new String(line));
+            System.out.println("******************************************************************");
+            System.out.println("ATTN LINE : " + payloadForCache);
+            // ALPA fileOutputStream.write(line);
+            // System.out.println("LINE : " + line);
+            cache.DecrementFreeSpace(count,url.toString());
+          }
+        }
+        out.flush();        
         if (payloadForCache != null) {
+          System.out.println("******************************************************************");
+          System.out.println("ATTN BEFORE PUTTING LINE : " + payloadForCache);
           Cacheable toBeCached = new Cacheable(url.toString(),payloadForCache,payloadForCache.length());
           Daemon.pcm.put(toBeCached);
         }
