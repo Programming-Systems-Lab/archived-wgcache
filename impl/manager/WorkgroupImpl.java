@@ -22,7 +22,7 @@ import psl.wgcache.impl.*;
 import java.io.*;
 import java.util.*;
 
-public class WorkgroupImpl  implements Workgroup,java.io.Serializable {
+public class WorkgroupImpl implements Workgroup,java.io.Serializable {
   protected Vector memberVec; // Vector of PersonalCacheModules
   private String name;
   private static WorkGroupManager manager;
@@ -98,8 +98,9 @@ public class WorkgroupImpl  implements Workgroup,java.io.Serializable {
 			CriteriaInfo critInfo = new CriteriaInfoImpl(this, x,trace,CriteriaInfo.VIA_PUSH, hist);
 			crit.apply(critInfo);
 		}
-  }
-
+  }  
+    public boolean compareTo (Workgroup fromClient) {    return(this.memberVec.size() == fromClient.numMembers());
+  }  
   public String getName()  {
     return name;
   }
@@ -136,7 +137,7 @@ public class WorkgroupImpl  implements Workgroup,java.io.Serializable {
 
   public Criteria getCriteria()  {
     return crit;
-  }
+  }  public int numMembers() {    return this.memberVec.size();  }
 
   public void setCriteria(Criteria crit)  {
     this.crit = crit;

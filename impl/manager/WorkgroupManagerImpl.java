@@ -23,7 +23,7 @@ import java.rmi.server.*;
 
 public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io.Serializable,WorkGroupManager {
   protected static Hashtable workgroups = new Hashtable();;
-  protected CacheService cache;
+  protected CacheService cache;  
   
   public WorkgroupManagerImpl() throws RemoteException {   
    try {
@@ -41,8 +41,7 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     log("creating workgroup " + wgName);
     workgroups.put(wgName, wg);
     return wg;
-   }
-
+  }
   public void deleteWorkgroup(String name) throws RemoteException {
     workgroups.remove(name);
   }
@@ -71,6 +70,36 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     
     return names;
   }  
+  
+  public synchronized void setWorkgroup(Workgroup frmClient) throws RemoteException {
+    Workgroup tempwg = null;
+    tempwg = (Workgroup)workgroups.get(frmClient.getName());
+    if (tempwg == null) {
+      log("Something really wrong the client workgroup is not known to the server");
+      return;
+    }
+    if (!tempwg.compareTo(frmClient)) {
+      workgroups.remove(tempwg.getName());
+      workgroups.put(frmClient.getName(),frmClient);
+      log("Workgroup" + tempwg.getName() + "was updated");          
+    }else 
+      log("Workgroup" + tempwg.getName() + "was not updated");
+  }
+  
+  public Workgroup isModified(Workgroup fromClient)throws RemoteException {
+    Workgroup tempwg = null;
+    tempwg = (Workgroup)workgroups.get(fromClient.getName());
+    if (tempwg == null) {
+      log("Something really wrong the client workgroup is not known to the server");
+      return null;      
+    }
+    if (!tempwg.compareTo(fromClient)) {
+      log("Workgroup" + tempwg.getName() + "was updated");          
+    }else 
+      log("Workgroup" + tempwg.getName() + "was not updated");
+    return tempwg;
+  }
+  
   public Cacheable query(Object queryTag)throws WGCException,RemoteException {
     Cacheable retVal = new Cacheable();
     if(queryTag != null) { 
