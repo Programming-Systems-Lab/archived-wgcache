@@ -8,10 +8,10 @@ Scenario
   - PhilWGC : joins the PSL-Workgroup
  
 To start
-  - start the workgroup server by executing psl.wgcache.impl.WorkgroupServer
-  - run "java -Djava.security.policy=pcm.policy psl.wgcache.impl.AlpaWGC"
-  - run "java -Djava.security.policy=pcm.policy psl.wgcache.impl.GailWGC"
-  - run "java -Djava.security.policy=pcm.policy psl.wgcache.impl.PhilWGC"
+  - start the workgroup server by executing psl.wgcache.WorkgroupServer
+  - run "java -Djava.security.policy=pcm.policy psl.wgcache.AlpaWGC"
+  - run "java -Djava.security.policy=pcm.policy psl.wgcache.GailWGC"
+  - run "java -Djava.security.policy=pcm.policy psl.wgcache.PhilWGC"
   
 Note the *WGC files read:
   - the WorkgroupServer name from file: Workgroup.conf
