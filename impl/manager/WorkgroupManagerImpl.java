@@ -18,15 +18,16 @@ public class WorkgroupManagerImpl implements WorkgroupManager {
    }catch(Exception e){e.printStackTrace();}
   }
   
-  public void newWorkgroup(String name) throws WGCException  {
+  public Workgroup newWorkgroup(String name) throws WGCException  {
     String wgName;
     wgName = name;
-    log("creating workgroup " + wgName);
-    
+        
     if(workgroups.containsKey(wgName))
       throw new WGCException("Workgroup already exists");
     WorkgroupImpl wg = new WorkgroupImpl(wgName, this);
+    log("creating workgroup " + wgName);
     workgroups.put(wgName, wg);
+    return wg;
    }
 
   public void deleteWorkgroup(String name)  {
@@ -52,7 +53,7 @@ public class WorkgroupManagerImpl implements WorkgroupManager {
     for(Enumeration e = workgroups.elements(); e.hasMoreElements();){
       names[i++] = ((Workgroup)e.nextElement()).getName();
       j = i-1;
-      System.out.println(names[j]);
+      //System.out.println(names[j]);
     }
     
     return names;

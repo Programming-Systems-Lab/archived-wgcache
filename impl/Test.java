@@ -17,21 +17,23 @@ import psl.wgcache.impl.manager.*;
    public static void main(String[] args) {
      String data = "TESTING DATA 1";
      Cacheable x = new Cacheable("TAG1",data,data.length());
-     PersonalCacheModuleImpl pcm = new PersonalCacheModuleImpl("Test");
+     PersonalCacheModuleImpl pcm1 = new PersonalCacheModuleImpl("Oracle");     PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("Parser");
      try {
-       pcm.createWorkgroup("blah");
-       System.out.println("JOINED A WORKGROUP");
+       pcm1.createWorkgroup("Oracle-Parser");
+       System.out.println("JOINED Oracle-Parser");
      }catch (WGCException w){}
-     if(pcm!=null) {
-       pcm.put(x);       
-     }
+     if(pcm1!=null) {
+       pcm1.put(x);       
+     }     try {
+       pcm2.createWorkgroup("Parser");
+       System.out.println("JOINED Parser");
+     }catch (WGCException w){}
      try {
-       pcm.createWorkgroup("blah");
-       System.out.println("JOINED A WORKGROUP");
+       pcm2.joinWorkgroup("Oracle-Parser");
+       System.out.println("JOINED Oracle-Parser");
      }catch (WGCException w){
-        System.out.println("WORKGROUP ALREADY EXISTS");
+        System.out.println("FAILED to join the group Oracle-Parser");
       } 
-      System.out.println("EXISTING WORKGROUPS:");
-      pcm.printWorkgroupNames();
+      pcm1.printJoinedWorkgroupNames();      pcm2.printJoinedWorkgroupNames();
   }
 }

@@ -74,12 +74,14 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
     Integer tmp = new  Integer(hashcode);
     put(tmp.toString(),data,size);  
     return(tmp.toString());
- }
+ }    protected void log(String mesg)  {
+    System.out.println("Cache:" + mesg);
+  }
 
   public void put(Object key,Object data,long size) {
     //System.out.println(" THE NEW SIZE IS ==> " + size);    
     if (!full(size)) {
-      System.out.println(" NOT FULL");
+      log(" NOT FULL");
       kwp = new KeyWeightPair(key,size);
       kwp.calculateWeight();
       try {
@@ -91,11 +93,10 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
       }  
       // bh.printElements();
     } else {
-      System.out.println(" IS FULL");
+      log("IS FULL");
       tmp = (KeyWeightPair)bh.deleteMax();
       System.out.println("The deleted size is =" + tmp.size);
-      currSize -= tmp.size;
-      System.out.println(" THE SIZE AFTER DELETING IS ==> " + currSize);    
+      currSize -= tmp.size;      
       this.put(key,data,size);
     }
     db.put(key,data);	   
@@ -138,7 +139,7 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
   }
 
   public void finalize(){
-    System.out.println("BYE PEOPLE");
+    System.out.println("BYE");
     shutdown(); 
   }
   public void receivedEvent(GroupspaceEvent ge) {

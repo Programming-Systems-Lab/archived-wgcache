@@ -145,6 +145,19 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * The specified data is saved by the module.
    */  
   
+  public void printJoinedWorkgroupNames(){
+    String[] names = new String[wgVec.size()];
+    int i = 0;
+    int j=0;
+    log("Workgroups joined :");
+
+    for(Enumeration e = wgVec.elements(); e.hasMoreElements();){
+      names[i++] = ((Workgroup)e.nextElement()).getName();
+      j = i-1;
+      System.out.println(names[j]);
+    }
+  }
+  
   public void pushTo(RequestTrace trace, Cacheable x)  {
     if((!trace.getLastHop().equals(roleName))&&(x.key != null)) {
       trace.addHop(roleName);
@@ -156,8 +169,12 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * Prints the workgroups to which the module is subscribed.
    *
    */
-  public void printWorkgroupNames(){
-    String names[] = wgm.getWorkgroupNames();  
+  public void printAllWorkgroupNames(){
+    log("WORKGROUPS:");
+    String names[] = wgm.getWorkgroupNames();
+    for (int i=0; i < names.length;i++) {
+      System.out.println(names[i]);
+    }
   }
   
   /**
@@ -167,7 +184,8 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    */
   public void createWorkgroup(String wgName) throws WGCException  {
     wgm = manager.getManager();
-    wgm.newWorkgroup(wgName);
+    Workgroup wg = wgm.newWorkgroup(wgName);
+    wgVec.addElement(wg);    
   }
   
   /**
