@@ -145,7 +145,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
         return retVal;
       }
       else {
-        // System.out.println("Not an instance of Cacheable");
+        System.out.println("Not an instance of Cacheable");
         Object temp = cache.query(queryData);
         if(temp !=null) {
           retVal.data = temp;

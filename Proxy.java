@@ -97,7 +97,29 @@ public class Proxy extends Thread {
 			//
 			// Client wants a web page - let's see if we have it in cache
 			//
-			if (cache.IsCached(url.toString())) {
+         
+      Cacheable retVal = Daemon.pcm.query(url.toString());
+      System.out.println(retVal);
+      if (retVal != null) {
+        // byte _data[] = (byte[])(retVal.data);
+        // int _count = _data.length;
+        // System.out.println("The data from the cache recieved is: " + _data + "and the count is : " + _count);
+        /*System.out.println("Hit! Getting from cache!!!");
+        OutputStream out = ClientSocket.getOutputStream();
+
+        // Send the bits to client
+        byte data[] = (byte[])(retVal.data);
+        int count = data.length;
+        System.out.println("The data from the cache recieved is: " + data + "and the count is : " + count);
+        while (-1 < count){
+        	out.write(data);
+        }
+        out.flush();
+        System.out.println("Out of the loop after writing the bytes");*/
+      }
+        
+      
+			 if (cache.IsCached(url.toString())) {
 				//
 				// Client request is allready cached - get it from file
 				//				
@@ -226,12 +248,11 @@ public class Proxy extends Thread {
 					
 					// Write bits to file
 					fileOutputStream.write(line);
+          
           Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
           Daemon.pcm.put(toBeCached);
           cache.DecrementFreeSpace(line.length,url.toString());
 				}
-
-
 				// 
 				// Read next lines in reply header, send them to
 				// client and cache them
@@ -251,6 +272,7 @@ public class Proxy extends Thread {
 							
 							// Write bits to file
 							fileOutputStream.write(line);
+              System.out.println("The line being written to the file is : " + line);
               Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
               Daemon.pcm.put(toBeCached);
 							cache.DecrementFreeSpace(line.length,url.toString());
@@ -303,11 +325,12 @@ public class Proxy extends Thread {
         out.writeBytes(reply.formServerNotFound());
         out.flush();
       }
-      catch (Exception uhe2)
-      {}
+      catch (Exception uhe2){
+        uhe2.printStackTrace();
       }
-		
+    }		
 		catch (Exception e) {
+     e.printStackTrace();
       try	{
         if (TakenFromCache)
           fileInputStream.close();
@@ -318,7 +341,9 @@ public class Proxy extends Thread {
 				DataOutputStream out = new DataOutputStream(ClientSocket.getOutputStream());        out.writeBytes(reply.formTimeout());
         out.flush();
       }
-      catch (Exception uhe2) {}
+      catch (Exception uhe2) {
+        uhe2.printStackTrace();
+      }
     }
     
 		finally	{
@@ -329,11 +354,7 @@ public class Proxy extends Thread {
 			catch (Exception e) {
         e.printStackTrace();
       } 
-		}
-    }
-
-
-  
+    }  }
 	//
 	// Private methods
 	//
