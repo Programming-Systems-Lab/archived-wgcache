@@ -12,6 +12,16 @@ package psl.wgcache.impl.manager;
  * @author  Alpa
  *  
  */
+
+ /*****************************************************************
+  wgm.newWorkgroup(wgName);
+  wgm.pushTo(new RequestTrace(),toBePushed,wgName);
+  wgm.getWorkgroupNames()
+  wgm.accessNotify(trace, queryTag, wgName);
+  wgm.joinWorkgroup(wgName, url);
+  wgm.leaveWorkgroup(wgName, url);
+  wgm.pullFrom(trace, queryData, wgName);
+  *****************************************************************/
 import psl.wgcache.*;
 import psl.wgcache.exception.*;
 import psl.wgcache.impl.*;
@@ -21,8 +31,9 @@ import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
 
-public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io.Serializable,WorkGroupManager {
-  protected static Hashtable workgroups = new Hashtable();;
+//public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io.Serializable,WorkGroupManager {
+public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io.Serializable {
+  protected static Hashtable workgroups = new Hashtable();
   protected CacheService cache;  
   
   public WorkgroupManagerImpl() throws RemoteException {   
@@ -31,34 +42,57 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
    }catch(Exception e){e.printStackTrace();}
   }
   
-  public Workgroup newWorkgroup(String name) throws WGCException,RemoteException {
-    String wgName;
-    wgName = name;        
-    if(workgroups.containsKey(wgName))
-      throw new WGCException("Workgroup already exists");
-    
-    WorkgroupImpl wg = new WorkgroupImpl(wgName, this);
+  public void newWorkgroup(String wgName) throws WGCException,RemoteException {
     log("creating workgroup " + wgName);
+    if(workgroups.containsKey(wgName))
+      throw new WGCException("Workgroup already exists");    
+    WorkgroupImpl wg = new WorkgroupImpl(wgName, this);    
     workgroups.put(wgName, wg);
-    return wg;
+    return;
+  }
+  public void leaveWorkgroup(String wgName, String url, String roleName) {
+    log("removing" + memName + "from the workgroup " +wgName);
+    if(!workgroups.containsKey(wgName))
+      throw new NoSuchModuleException(wgName);
+    Workgroup wg = getWorkgroup(wgName);    
+    wg.removeMember(url);
+    return;
+  }
+  public void pushTo(RequestTrace trace,Cacheable toBePushed,String wgName) {
+    log("pushing to workgroup "+wgName);
+    if(!workgroups.containsKey(wgName))
+      throw new NoSuchModuleException(wgName);
+    Workgroup wg = getWorkgroup(wgName);    
+    wg.pushTo(trace, toBePushed);
+  }
+
+  public void accessNotify(RequestTrace trace, Object data, String wgName) {
+    log("notifying workgroup " +wgName);
+    if(!workgroups.containsKey(wgName))
+      throw new NoSuchModuleException(wgName);
+    Workgroup wg = getWorkgroup(wgName);
+    wg.accessNotify(trace,data);
   }
   
-  public void joinWorkgroup(String wgname, String url,String memName) throws WGCException,RemoteException {
-    String wgname;
-    wgName = wgname;
-    if(workgroups.containsKey(wgName))
-      throw new WGCException("Workgroup already exists");
-    Workgroup wg = getWorkgroup(wgName);
+  public void joinWorkgroup(String wgName, String url) throws WGCException,RemoteException {
     log("adding " + memName + "to the workgroup " +wgName);
+    if(!workgroups.containsKey(wgName))
+      throw new NoSuchModuleException(wgName);
+    Workgroup wg = getWorkgroup(wgName);
     workgroups.put(wgName,wg);
-    wg.addMember(url,memName);
+    wg.addMember(url);
   }
   
   public void deleteWorkgroup(String name) throws RemoteException {
+    log("deleting workgroup" +name);
+    if(!workgroups.containsKey(wgName))
+      throw new NoSuchModuleException(wgName);
+    Workgroup wg = getWorkgroup(wgName);
+    wg.removeAll();
     workgroups.remove(name);
   }
 
-  public Workgroup getWorkgroup(String wgName) throws WGCException,RemoteException  {
+  protected Workgroup getWorkgroup(String wgName) throws WGCException {
     log("getting workgroup " + wgName);
     if(!workgroups.containsKey(wgName))
       throw new NoSuchModuleException(wgName);
@@ -73,17 +107,22 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     String[] names = new String[workgroups.size()];
     int i = 0;
     int j=0;
-
     for(Enumeration e = workgroups.elements(); e.hasMoreElements();){
       names[i++] = ((Workgroup)e.nextElement()).getName();
       j = i-1;
       //System.out.println(names[j]);
-    }
-    
+    }    
     return names;
-  }  
+  }    
+  public Cacheable pullFrom(RequestTrace trace, Object queryData, String wgName){
+    log("pulling from workgroup" +wgName);
+    if(!workgroups.containsKey(wgName))
+      throw new NoSuchModuleException(wgName);
+    Workgroup wg = getWorkgroup(wgName);
+    return (wg.pullFrom(trace,queryData));
+  }
   
-  public synchronized void setWorkgroup(Workgroup frmClient) throws RemoteException {
+  /*public synchronized void setWorkgroup(Workgroup frmClient) throws RemoteException {
     Workgroup tempwg = null;
     tempwg = (Workgroup)workgroups.get(frmClient.getName());
     if (tempwg == null) {
@@ -110,7 +149,7 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     }else 
       log("Workgroup" + tempwg.getName() + "was not updated");
     return tempwg;
-  }
+  }*/
   
   public Cacheable query(Object queryTag)throws WGCException,RemoteException {
     Cacheable retVal = new Cacheable();
@@ -129,6 +168,7 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     }
     return retVal;
   }
+  
   protected void log(String mesg)  {
     System.out.println("WorkgroupManager:" + mesg);
   }

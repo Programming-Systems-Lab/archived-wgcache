@@ -15,15 +15,25 @@ package psl.wgcache.impl.manager;/** Copyright (c) 2000: The Trustees of Colum
  * @author  Alpa
  *  
  */
+
+/***********************************************************
+ * wg.pullFrom(trace,queryData);
+ * wg.removeMember(url);
+ * wg.pushTo(trace, toBePushed);
+ * wg.accessNotify(trace,data);
+ * wg.addMember(url);
+ * wg.removeAll();
+ ************************************************************/
+
 import psl.wgcache.exception.*;
 import psl.wgcache.roles.*;
 import psl.wgcache.support.*;
 import psl.wgcache.impl.*;
 import java.io.*;
-import java.util.*;
+import java.util.*;import java.rmi.*;
 
 public class WorkgroupImpl implements Workgroup,java.io.Serializable {
-  protected Hashtable memberVec; // Vector of PersonalCacheModules
+  protected Vector memberVec; // Vector of PersonalCacheModules
   private String name;
   private static WorkGroupManager manager;
   private Criteria crit;
@@ -33,12 +43,12 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     super();
     this.name = name;
     this.manager = manager;
-    this.memberVec = new Hashtable();
+    this.memberVec = new Vector();
     this.crit = new NopCriteria();
     this.hist = new History();
   }    
   public Cacheable pullFrom(RequestTrace trace, Object cname)  {
-		log("Workgroup name is:" +this.name);
+		log("Workgroup name is:" + name);
 		if(cname != null) { 
       if(cname instanceof Cacheable){ 
 			//log("Is an instance of Cacheable in the workgroup");
@@ -51,8 +61,8 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 		log("Size of the workgroup is:"+ memberVec.size());
 		Cacheable result = null;
 		if(memberVec.size() > 0){
-			for(int i = 0; i < memberVec.size(); i++) {
-				PersonalCacheModuleImpl memPCM = (PersonalCacheModuleImpl)memberVec.elementAt(i);
+			for(int i = 0; i < memberVec.size(); i++) {        this.wgm = (WorkGroupManager)Naming.lookup(url);    
+        PersonalCacheModuleImpl memPCM = (PersonalCacheModuleImpl)Naming.lookup("rmi://"+(String)memberVec.elementAt(i));
 				log("JUST CEHCKING");
 				log("MEMBER PCM :"+ memPCM.getName());
 				try {
@@ -113,30 +123,29 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     this.name = name;
   }
 
-  public void addMember(String memberUrl,String memName)  {
-    log("adding member " + memName);
-    memberVec.addElement(member);
+  public void addMember(String memberUrl)  {
+    log("adding member " + memberUrl);
+    memberVec.addElement(memberUrl);
   }
 
-  public void removeMember(PersonalCacheModule member)  {
-    log("removing member " + member.getName());
-    //member.leaveWorkgroup(getName());    if (member!=null)      memberVec.removeElement(member);  
+  public void removeMember(String memUrl)  {
+    log("removing member " + memUrl);        if (memUrl!=null)      memberVec.removeElement(memUrl);  
   }
 
-  protected void removeAllMembers()  {
+  public void removeAll()  {
     log("removing all members");
-    PersonalCacheModule pcm;
+    String pcmUrl;
     for(Enumeration e = memberVec.elements(); e.hasMoreElements();) {
-      pcm = (PersonalCacheModule)e.nextElement();
-      removeMember(pcm);
+      pcmUrl = (String)e.nextElement();
+      removeMember(pcmUrl);
     }
   }
 
-  public PersonalCacheModule[] members()  {
+/*  public PersonalCacheModule[] members()  {
     PersonalCacheModule[] retval = new PersonalCacheModule[memberVec.size()];
     memberVec.copyInto(retval);
     return retval;
-  }
+  }*/
 
   public Criteria getCriteria()  {
     return crit;
@@ -158,7 +167,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     crit.apply(critInfo);
   }
   protected void finalize()  {
-   removeAllMembers();
+   removeAll();
   }
 }
 
