@@ -144,7 +144,7 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
   }
   public void receivedEvent(GroupspaceEvent ge) {
     Cacheable retVal = new Cacheable();
-    String status = null;    String eventDescription = ge.getEventDescription();    Cacheable object = (Cacheable)ge.getDbo();
+    String status = null;     String eventDescription = ge.getEventDescription();     Cacheable object = (Cacheable)ge.getDbo();
     
     if((eventDescription == "Oracle_WGCache_Put")||(eventDescription == "Metaparser_WGCache_Put")) {
       if (object.key == null) {
