@@ -107,5 +107,8 @@ public class CacheService implements Serializable  {
     System.out.println("BYE");
     shutdown(); 
   }
+	public void clear() {
+		db.clear();
+	}
 } 
 
