@@ -38,7 +38,13 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
   /**
    * Constructs a new Cache Module with the specified roleName.
    */      
-  public PersonalCacheModuleImpl(String roleName){
+  public PersonalCacheModuleImpl(String roleName, PCM_Visual _pcmv) {
+    this(roleName);    pcmv = _pcmv;
+  }
+  /**
+   * Constructs a new Cache Module with the specified roleName.
+   */      
+  public PersonalCacheModuleImpl(String roleName) {
     filename = "WorkgroupServer.conf";  // hardcoded! bad, needs to be passed as an argument....
     prop = new Properties();
     wgVec = new Vector();
@@ -61,15 +67,13 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
       System.out.println("CACHE NOT CREATED");
     }
 
-    System.setSecurityManager(new java.rmi.RMISecurityManager());
-    try {
+    String managerUrl = System.getProperty("Manager");    System.setSecurityManager(new java.rmi.RMISecurityManager());
+    try {      /*
       FileInputStream in = new FileInputStream(filename);
       prop.load(in);
-      String managerUrl = prop.getProperty("workgroupserver.url"); 
-      if (managerUrl == null) managerUrl = "rmi://disco.cs.columbia.edu/manager";
+      String managerUrl = prop.getProperty("workgroupserver.url");       */      if (managerUrl == null) managerUrl = "rmi://canal.cs.columbia.edu/manager";
       // System.out.println("URL IS:" + url);
-      // manager = new ManagerImpl();      
-      wgm = (WorkgroupManager) Naming.lookup(managerUrl);    
+      // manager = new ManagerImpl();            wgm = (WorkgroupManager) Naming.lookup(managerUrl);    
     } catch (Exception e) {
       System.out.println("ERROR: Could not connect to the server");      
       e.printStackTrace();
@@ -88,18 +92,19 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
    * @return   key for the data cached if not provided, for future references.   
    * 
    */  
-  
+
+  private PCM_Visual pcmv = null;
   public Object genericPut(Cacheable x) {
     Object retVal = null;
     if ((x.data != null) && (x.size > 0 )) {
       if (x.key != null) {
         retVal = x.key;
         cache.put(x.key,x.data,x.size);
-      }
-      else {
+      } else {
         retVal = cache.put(x.data,x.size);
       }
-    }else {
+      if (pcmv != null) pcmv.cacheDataAdded(x.key.toString(), x.data.toString());
+    } else {
       log("Data or Size fields are Null for genericPut");       
     }
     return retVal;
@@ -183,7 +188,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     for(int i = 0; i < wgVec.size(); i++) {
       String wgName = (String)wgVec.elementAt(i);
       log("The workgroup being pushed to is :" + wgName);
-      try {        
+      try {
         wgm.pushToWorkGroup(roleName,toBePushed,wgName);
       }catch (Exception e) {
         System.out.println("ERROR: Server connection problem in pushToWorkgroup");

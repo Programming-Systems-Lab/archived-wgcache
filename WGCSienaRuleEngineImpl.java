@@ -24,12 +24,12 @@ import java.util.*;
 import java.net.*;
 
 import siena.*;
-import psl.kx.*;import psl.xues.EventDistiller;
+import psl.kx.KXNotification;import psl.xues.EventDistiller;
 
 public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {
   private Siena si = null;
   private HierarchicalDispatcher hd = null;
-  private WorkgroupManagerImpl wgm = null;  protected Notifiable InternalED_RuleEngine = null;  private WGCSienaRuleEngineImpl mySelf = null;
+  private WorkgroupManagerImpl wgm = null;  protected EventDistiller InternalED_RuleEngine = null;  private WGCSienaRuleEngineImpl mySelf = null;
   
   public WGCSienaRuleEngineImpl(WorkgroupManagerImpl wgm) {    mySelf = this;
     this.wgm = wgm;
@@ -69,17 +69,23 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
         e.printStackTrace();
       }    
       System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
-    } else {      log("Using an embedded Event Distiller Rule Engine");
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        public void run() {
+		  		log("shutting down WGCSienaRuleEngineImpl.hierarchical dispatcher");
+          hd.shutdown();
+        }
+		  });
+    } else {      log("Using an embedded Event Distiller Rule Engine, w/ specfile: " + System.getProperty("Specfile"));      /* -- InternalED_RuleEngine starts its own thread, and now actually returns
       (new Thread() {
         public void run() {
-          log("started embedded Event Distiller Rule Engine in a separate thread");          InternalED_RuleEngine = new EventDistiller(mySelf);        }      }).start();
+          log("started embedded Event Distiller Rule Engine in a separate thread");          InternalED_RuleEngine = new EventDistiller(mySelf);        }      }).start();      */      InternalED_RuleEngine = new EventDistiller(mySelf, System.getProperty("Specfile")); // equivalent to: new EventDistiller(this);
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        public void run() {
+		  		log("shutting down WGCSienaRuleEngineImpl.InternalED_RuleEngine");
+          InternalED_RuleEngine.shutdown();
+        }
+		  });
     }
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-				log("shutting down WGCSienaRuleEngineImpl");
-        hd.shutdown();
-      }
-		});
   }
   
   public void run() {
@@ -105,9 +111,9 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
     metaData.put("DataHandle", new siena.AttributeValue((String) dataHandle.key));
     
     Notification n = KXNotification.EDInputKXNotification("psl.wgcache.impl.WGCSienaInterface",SrcId,metaData);
-        log("InternalED_RuleEngine is: " + InternalED_RuleEngine);
+        // log("InternalED_RuleEngine is: " + InternalED_RuleEngine);
         try {      if (InternalED_RuleEngine != null) {
-        // inform embedded ED-rule-engine of this put-event
+        log("informing embedded ED-rule-engine of this put-event");
         InternalED_RuleEngine.notify(n);      } else {
         // send put-event to ED-rule-engine via Siena
         si.publish(n);      }

@@ -99,7 +99,7 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
 
   public void accessNotify(String pcmName, Cacheable data) throws RemoteException {
     if (!notPushedEarlier(pcmName, data)) {
-      wgRule.what_do_i_do_next(pcmName,data);
+      wgRule.what_do_i_do_next(pcmName, data);      // log("what_do_i_do_next returned: ");
     } else {
     }
   }
