@@ -307,6 +307,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     try {
       wgm.newWorkgroup(wgName);
       wgm.joinWorkgroup(wgName, url,roleName);
+      if (pcmv != null) pcmv.workgroupAdded(wgName);
       //wg.addmember(this);
       //wgm.setWorkgroup(wg);      
       wgVec.addElement(wgName);      
@@ -325,8 +326,8 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
 
   public void joinWorkgroup(String wgName) throws WGCException  {
     try {
-      wgm.joinWorkgroup(wgName,url,roleName);
-    }catch (Exception e){
+      wgm.joinWorkgroup(wgName,url,roleName);      if (pcmv != null) pcmv.workgroupAdded(wgName);
+    } catch (Exception e){
       System.out.println("ERROR: Server connection problem in joinWorkgroup");
       e.printStackTrace();    
     }

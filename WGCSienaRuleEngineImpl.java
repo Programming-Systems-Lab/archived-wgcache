@@ -99,7 +99,47 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
       e.printStackTrace();
     }
   }
-  
+    public void addRule(String instigator, String target, boolean isModule) {
+    log("Generating SmartEvent - addRule");        /*
+    Hashtable metaData = new Hashtable();
+    int SrcId = 235324;
+    metaData.put("type", new siena.AttributeValue("WGCRule"));
+    metaData.put("hostname", new siena.AttributeValue(hostname));
+    metaData.put("Instigator", new siena.AttributeValue(instigator));
+    metaData.put("DataHandle", new siena.AttributeValue((String) dataHandle.key));
+    */        String WGC_RULE_TARGET_TYPE = isModule ? "Module" : "Workgroup";
+    String WGC_RULE_NAME = instigator + target + WGC_RULE_TARGET_TYPE;
+    String WGC_RULE_INSTIGATOR = instigator;
+    String WGC_RULE_TARGET = target;
+        String xmlRule = null;
+    Notification n = KXNotification.EDManagerAddRule(xmlRule = 
+    "<rule name=\"" + WGC_RULE_NAME + "\">                                                                                         \n" +
+    "  <states>                                                                                                       \n" +
+    "    <state name=\"startState\" timebound=\"-1\" children=\"\" actions=\"ruleAction\" fail_actions=\"\">          \n" +
+    "      <attribute name=\"Instigator\" value=\"" + WGC_RULE_INSTIGATOR + "\"/>                                     \n" +
+    "      <attribute name=\"DataHandle\" value=\"*1\"/>                                                              \n" +
+    "    </state>                                                                                                     \n" +
+    "  </states>                                                                                                      \n" +
+    "  <actions>                                                                                                      \n" +
+    "    <notification name=\"ruleAction\">                                                                           \n" +
+    "      <attribute name=\"Instigator\" value=\"" + WGC_RULE_INSTIGATOR + "\"/>                                     \n" +
+    "      <attribute name=\"Action\" value=\"Push\"/>                                                                \n" +
+    "      <attribute name=\"Target\" value=\"" + WGC_RULE_TARGET_TYPE + "\"/>                                        \n" +
+    "      <attribute name=\"TargetName\" value=\"" + WGC_RULE_TARGET + "\"/>                                         \n" +
+    "      <attribute name=\"DataHandle\" value=\"*1\"/>                                                              \n" +
+    "    </notification>                                                                                              \n" +
+    "  </actions>                                                                                                     \n" +
+    "</rule>                                                                                                          \n");
+    
+    try {
+      if (InternalED_RuleEngine != null) {
+        log("informing embedded ED-rule-engine of added rule");
+        InternalED_RuleEngine.notify(n);      } else {
+        // send put-event to ED-rule-engine via Siena
+        si.publish(n);      }
+    } catch (siena.SienaException se) {
+      se.printStackTrace();    }  }
+
   private void generatePutEvent(String instigator, String hostname, Cacheable dataHandle) {
     log("Generating SmartEvent");    
     Hashtable metaData = new Hashtable();

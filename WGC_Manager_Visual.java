@@ -31,9 +31,9 @@ import javax.swing.SwingConstants;
 
 import java.util.Hashtable;
 
-import psl.wgcache.Cacheable;
-import psl.wgcache.PersonalCacheModuleImpl;
-import psl.wgcache.WGCException;
+// import psl.wgcache.Cacheable;
+// import psl.wgcache.PersonalCacheModuleImpl;
+// import psl.wgcache.WGCException;
 
 public class WGC_Manager_Visual {
   private static final int MAX_WIDTH = 600;
@@ -242,8 +242,8 @@ public class WGC_Manager_Visual {
         String target = _botPanel1_2_TargetText.getText();
         if (! instigator.equals("") && ! target.equals("")) {
           // _pcmi.put(new Cacheable(key, data, data.length()));
-          // create the new XML push rule in here
-          pushRuleAdded(instigator, target, _botPanel1_2_TypeCheckbox2.getState());
+          // create the new XML push rule in here          WorkgroupServer.wgm.addRule(instigator, target, _botPanel1_2_TypeCheckbox1.getState());          System.out.println("isModule: " + _botPanel1_2_TypeCheckbox1.getState());
+          // pushRuleAdded(instigator, target, _botPanel1_2_TypeCheckbox2.getState());
         }
         _botPanel1_2_InstigatorText.setText("");
         _botPanel1_2_TargetText.setText("");
@@ -396,17 +396,17 @@ public class WGC_Manager_Visual {
   
   private final static Color _moduleColour = new Color(129, 158, 193); // mauve
   private final static Color _groupColour = Color.green;
-  void pushRuleAdded(String instigator, String target, boolean targetIsGroup) {
+  void pushRuleAdded(String instigator, String target, boolean targetIsModule) {
     if (instigator.equals("") || target.equals("")) return;
     Panel p = new Panel(new GridLayout(1, 2));
     TextField tfInstigator, tfTarget;
     p.add(tfInstigator = new TextField(instigator));
     p.add(tfTarget = new TextField(target));
-    tfInstigator.setBackground(targetIsGroup ? _groupColour : _moduleColour);
-    tfTarget.setBackground(targetIsGroup ? _groupColour : _moduleColour);
+    tfInstigator.setBackground(targetIsModule ? _moduleColour : _groupColour);
+    tfTarget.setBackground(targetIsModule ? _moduleColour : _groupColour);
     _midPanel1_1.add(p);
     p.validate(); _midPanel1Scp.validate(); _midPanel1_1.validate();
-    System.out.println("Entered pushRuleAdded: " + instigator + ", " + target + ", " + targetIsGroup);
+    System.out.println("Entered pushRuleAdded: " + instigator + ", " + target + ", " + targetIsModule);
   }
   
   void memberJoined(String wgName, String memberName) {

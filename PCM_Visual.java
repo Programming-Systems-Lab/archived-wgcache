@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 
 import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.CheckboxGroup;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
@@ -84,10 +86,13 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
   private GridBagConstraints _botPanel1_3_1GBC = null;
   private Label       _botPanel1_3_WGLabel = null;
   private Label       _botPanel1_3_UsersLabel = null;
+  private Label       _botPanel1_3_TypeLabel = null;
   private TextField   _botPanel1_3_WGText = null;
   private TextField   _botPanel1_3_UsersText = null;
-  private Button      _botPanel1_3_CreateWG_But = null;
-  private Button      _botPanel1_3_JoinWG_But = null;
+  private CheckboxGroup _botPanel1_3_TypeCBoxGrp = null;
+  private Checkbox    _botPanel1_3_TypeCheckbox1 = null;
+  private Checkbox    _botPanel1_3_TypeCheckbox2 = null;
+  private Button      _botPanel1_3_AddWG_But = null;
   private Button      _botPanel1_3_ESCBut = null;
   private TextArea    _botPanel2_TextArea = null;
   // Personal Cache Module stuff ///////////////////////
@@ -230,20 +235,22 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
     _botPanel1_3_WGLabel.setFont(_mediumFont);
     _botPanel1_3_UsersLabel = new Label("Users: ", Label.RIGHT);
     _botPanel1_3_UsersLabel.setFont(_mediumFont);
+    _botPanel1_3_TypeLabel = new Label("Type: ", Label.RIGHT);
+    _botPanel1_3_TypeLabel.setFont(_mediumFont);
     _botPanel1_3_WGText = new TextField();
     _botPanel1_3_WGText.setForeground(Color.white);
     _botPanel1_3_WGText.setBackground(_buttonColour);
     _botPanel1_3_UsersText = new TextField();
+    _botPanel1_3_UsersText.setEnabled(false);
     _botPanel1_3_UsersText.setForeground(Color.white);
     _botPanel1_3_UsersText.setBackground(_buttonColour);
-    _botPanel1_3_CreateWG_But = new Button("Create");
-    _botPanel1_3_CreateWG_But.setFont(_largeFont);
-    _botPanel1_3_CreateWG_But.setForeground(Color.white);
-    _botPanel1_3_CreateWG_But.setBackground(_buttonColour);
-    _botPanel1_3_JoinWG_But = new Button("Join");
-    _botPanel1_3_JoinWG_But.setFont(_largeFont);
-    _botPanel1_3_JoinWG_But.setForeground(Color.white);
-    _botPanel1_3_JoinWG_But.setBackground(_buttonColour);
+    _botPanel1_3_TypeCBoxGrp = new CheckboxGroup();
+    _botPanel1_3_TypeCheckbox1 = new Checkbox("Create", _botPanel1_3_TypeCBoxGrp, true);
+    _botPanel1_3_TypeCheckbox2 = new Checkbox("Join", _botPanel1_3_TypeCBoxGrp, false);
+    _botPanel1_3_AddWG_But = new Button("Add");
+    _botPanel1_3_AddWG_But.setFont(_largeFont);
+    _botPanel1_3_AddWG_But.setForeground(Color.white);
+    _botPanel1_3_AddWG_But.setBackground(_buttonColour);
     _botPanel1_3_ESCBut = new Button("Cancel");
     _botPanel1_3_ESCBut.setFont(_largeFont);
     _botPanel1_3_ESCBut.setForeground(Color.white);
@@ -261,35 +268,25 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
     _botPanel1_3_1.add(_botPanel1_3_UsersLabel);
     _botPanel1_3_1GBL.setConstraints(_botPanel1_3_UsersText, _botPanel1_3_1GBC);
     _botPanel1_3_1.add(_botPanel1_3_UsersText);
+    _botPanel1_3_1.add(_botPanel1_3_TypeLabel);
+    _botPanel1_3_1.add(_botPanel1_3_TypeCheckbox1);
+    _botPanel1_3_1.add(_botPanel1_3_TypeCheckbox2);
     // ------------------------------------------------------------------------------- //
     _botPanel1_3.add(_botPanel1_3_2 = new Panel(new GridLayout(1, 3)));
-    _botPanel1_3_2.add(_botPanel1_3_CreateWG_But);
-    _botPanel1_3_CreateWG_But.addActionListener(new ActionListener() {
+    _botPanel1_3_2.add(_botPanel1_3_AddWG_But);
+    _botPanel1_3_AddWG_But.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
         String wgName = _botPanel1_3_WGText.getText();
         if (! wgName.equals("")) {
-          try {
-            _pcmi.createWorkgroup(wgName);
-            workgroupAdded(wgName);
-          } catch (WGCException wgce) { }
+          try {            if (_botPanel1_3_TypeCheckbox1.getState()) {              _pcmi.createWorkgroup(wgName);            } else {              _pcmi.joinWorkgroup(wgName);            }
+            // workgroupAdded(wgName);
+          } catch (WGCException wgce) {
+            wgce.printStackTrace();
+          }
         }
         _botPanel1_3_WGText.setText("");
         _botPanel1_3_UsersText.setText("");
-        ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "TOP");
-      }
-    });
-    _botPanel1_3_2.add(_botPanel1_3_JoinWG_But);
-    _botPanel1_3_JoinWG_But.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent ae) {
-        String wgName = _botPanel1_3_WGText.getText();
-        if (! wgName.equals("")) {
-          try {
-            _pcmi.joinWorkgroup(wgName);
-            workgroupAdded(wgName);
-          } catch (WGCException wgce) { }
-        }
-        _botPanel1_3_WGText.setText("");
-        _botPanel1_3_UsersText.setText("");
+        _botPanel1_3_TypeCheckbox1.setState(true);
         ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "TOP");
       }
     });
@@ -298,6 +295,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
       public void actionPerformed(ActionEvent ae) {
         _botPanel1_3_WGText.setText("");
         _botPanel1_3_UsersText.setText("");
+        _botPanel1_3_TypeCheckbox1.setState(true);
         ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "TOP");
       }
     });

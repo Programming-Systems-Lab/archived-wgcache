@@ -226,6 +226,8 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
       log("QueryTag provided is null");  
     }
     return retVal;
+  }    public void addRule(String instigator, String target, boolean isModule) {
+    wgRule.addRule(instigator, target, isModule);    if (IS_VISUAL) wgcmv.pushRuleAdded(instigator, target, isModule);
   }
 
   private void log(String mesg)  {
