@@ -42,7 +42,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     prop = new Properties();
     wgVec = new Vector();
     this.roleName = roleName;
-    proxyDaemon = new Daemon(this);    proxyDaemon.main(null);
+    proxyDaemon = new Daemon(this);    // proxyDaemon.main(null);    proxyDaemon.start();    System.out.println("Done creating the proxy daemon");
     try {
       url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);
@@ -65,10 +65,11 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
       //System.out.println("URL IS:" + url);
       //manager = new ManagerImpl();      
       wgm = (WorkgroupManager)Naming.lookup(managerUrl);    
-    }catch (Exception e) {
-       System.out.println("ERROR: Could not connect to the server");      
-       e.printStackTrace();
-     }  }
+    } catch (Exception e) {
+      System.out.println("ERROR: Could not connect to the server");      
+      e.printStackTrace();
+    }
+    System.out.println("Got to the end");  }
   
   public String getName() {                    
     return roleName;

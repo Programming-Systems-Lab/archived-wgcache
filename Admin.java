@@ -25,6 +25,8 @@ public class Admin extends Thread {
   DataOutputStream out = null;
   Config config = null;
   Cache cache;
+  final int defaultAdminPort = 6666;
+  int adminPort = 0;
   
   //
   // Public methods
@@ -34,14 +36,19 @@ public class Admin extends Thread {
   // Constructor
   //
   Admin(Config configObject, Cache cacheManager) {
-    try {
-      config = configObject;
-      cache = cacheManager;
-      adminSocket = new ServerSocket(6666);
-      config.setAdminPort(adminSocket.getLocalPort());
-    }
-    catch (IOException e) {
-      System.out.println("Error opening admin socket");
+    config = configObject;
+    cache = cacheManager;
+    adminPort = defaultAdminPort;
+    while (adminPort < 65536) {
+      try {
+        adminSocket = new ServerSocket(adminPort);
+        config.setAdminPort(adminSocket.getLocalPort());
+        System.out.println("Admin [daemon port] : " + adminPort);
+        break;
+      } catch (IOException e) {
+        adminPort++;
+        // System.out.println("Error opening admin socket");
+      }
     }
   }
   //
@@ -64,19 +71,17 @@ System.out.println("password received");
             out.writeBytes("ACCEPT\n");
 System.out.println("password ACCEPT");
             break;
-          }
-          else {
+          } else {
             out.writeBytes("REJECT\n");
 System.out.println("password REJECT");
           }
           out.flush();
-        }
-        while (true);
+        } while (true);
         //
         // Password is OK, so let's send the administrator the
         // parameters values and read his new values
         //
-        while(true)  {
+        while (true)  {
           out.writeBytes(config.toString());
           out.flush();
 
@@ -89,7 +94,7 @@ System.out.println("password REJECT");
             config.setCleanCache(false); //no need to clean again
           }
         }
-      }  catch (Exception e) {
+      } catch (Exception e) {
         //
         // This line was reached because the administrator closed
         // the connection with the proxy. That's fine, we are now
@@ -97,15 +102,13 @@ System.out.println("password REJECT");
         //
         e.printStackTrace();
         System.out.println("Connection with administrator closed.");
-      }
-      finally {
+      } finally {
         try  {
           out.close();
           in.close();
-        }
-        catch(Exception exc) {}
+        } catch(Exception exc) { }
       }
-    }//while
+    } //while
   } 
 }
 
