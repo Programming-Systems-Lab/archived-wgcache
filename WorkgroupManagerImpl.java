@@ -70,17 +70,17 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     wg.pushToWorkgroup(dataSrc,toBePushed);
   }
 
-  void pushToModule(String dataSrc, Cacheable toBePushed,String memName) throws WGCException {
-    log("Entered pushToModule: " + dataSrc + " " + memName);
+  public void pushToModule(String dataSrc, Cacheable toBePushed,String memName) throws WGCException {
+    log("Entered pushToModule: " + dataSrc + " -> " + memName);
     Workgroup target = null;
     String wgName = null;    
 
-    log("enumeration: " + workgroups.size());
-    for (Enumeration e = workgroups.elements(); e.hasMoreElements();){
-      target = (Workgroup) e.nextElement();
-      log("workgroup: " + target.getName());
-      if (target.containsMember(dataSrc) && target.containsMember(memName)) {
-        log("Found wg w/ both dataSrc & memName: " + target.getName());
+    // log("enumeration: " + workgroups.size());
+    Enumeration e = workgroups.elements();    while (e.hasMoreElements()) {
+      Workgroup tmpTarget = (Workgroup) e.nextElement();
+      log("workgroup: " + tmpTarget.getName());
+      if (tmpTarget.containsMember(dataSrc) && tmpTarget.containsMember(memName)) {
+        log("Found wg w/ both dataSrc & memName: " + tmpTarget.getName());        target = tmpTarget;
         break;
       }
     }

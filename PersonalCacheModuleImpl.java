@@ -54,7 +54,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     proxyDaemon.start();
     System.out.println("Done creating the proxy daemon");
     try {
-      url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
+      url = "rmi://" + InetAddress.getLocalHost().getHostAddress() + "/" + roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);
       log(url);
     } catch (Exception e) {}

@@ -199,7 +199,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
   }
 
   public void addMember(String memberUrl, String PCMName)  {
-    //log("adding member --- " + "key: " + PCMName + ", value: " + memberUrl);
+    log("adding member --- " + "key: " + PCMName + ", value: " + memberUrl);
     memberVec.put(PCMName,memberUrl);    
   }
 

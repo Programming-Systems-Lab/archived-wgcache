@@ -27,7 +27,7 @@ import psl.wgcache.Cacheable;
 import psl.wgcache.PersonalCacheModuleImpl;
 import psl.wgcache.WGCException;
 
-public class PCM_Visual {  private static final int MAX_WIDTH = 500;
+public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
   private static final int MAX_HEIGHT = 300;  private static final int NUM_ENTRIES = 10;
   // private AWT variables
   private Frame _frame = null;
@@ -91,10 +91,10 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
   private Button      _botPanel1_3_ESCBut = null;
   private TextArea    _botPanel2_TextArea = null;
   // Personal Cache Module stuff ///////////////////////
-  private String _roleName = null;
-  private PersonalCacheModuleImpl _pcmi = null;
+  // private String _roleName = null;
+  // private PersonalCacheModuleImpl _pcmi = null;
 
-  private PCM_Visual(String name) {
+  private WGC_Manager_Visual(String name) {
     // Frame settings //////////////////////////////////
     _frame = new Frame(name);
     _frame.setSize(MAX_WIDTH, MAX_HEIGHT);
@@ -115,7 +115,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
     _topLabel1 = new Label("Personal Cache Module - WGC", Label.CENTER);
     _topLabel1.setFont(_largeFont);
     _topLabel1.setForeground(_textColour);
-    _topLabel2 = new Label(_roleName = System.getProperty("User"), Label.CENTER);
+    _topLabel2 = new Label("Manager", Label.CENTER);
     _topLabel2.setFont(_largeFont);
     _topLabel2.setForeground(_textColour);
     _topPanel.add(_topLabel1);
@@ -123,7 +123,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
     _panel.add(_topPanel, BorderLayout.NORTH);
 
     // Main panel settings /////////////////////////////
-    _midPanel = new Panel(new GridLayout(1, 3, 5, 25));
+    _midPanel = new Panel(new GridLayout(1, 2, 5, 25));
         _midPanel1 = new Panel(new BorderLayout());
     _midPanel1.add(_midLabel1 = new Label("Cached data [key-data]", Label.CENTER), BorderLayout.NORTH);
     _midLabel1.setFont(_smallFont);
@@ -209,7 +209,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
         String key = _botPanel1_2_KeyText.getText();
         String data = _botPanel1_2_DataText.getText();
         if (! key.equals("")) {
-          _pcmi.put(new Cacheable(key, data, data.length()));
+          // _pcmi.put(new Cacheable(key, data, data.length()));
         }
         _botPanel1_2_KeyText.setText("");
         _botPanel1_2_DataText.setText("");
@@ -269,7 +269,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
         String wgName = _botPanel1_3_WGText.getText();
         if (! wgName.equals("")) {
           try {
-            _pcmi.createWorkgroup(wgName);
+            // _pcmi.createWorkgroup(wgName);
             workgroupAdded(wgName);
           } catch (WGCException wgce) { }
         }
@@ -284,7 +284,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
         String wgName = _botPanel1_3_WGText.getText();
         if (! wgName.equals("")) {
           try {
-            _pcmi.joinWorkgroup(wgName);
+            // _pcmi.joinWorkgroup(wgName);
             workgroupAdded(wgName);
           } catch (WGCException wgce) { }
         }
@@ -333,7 +333,7 @@ public class PCM_Visual {  private static final int MAX_WIDTH = 500;
     // _frame.pack();
     _frame.show();
     /////////////////////////////////////////////////////////////////////////////////////
-    _pcmi = new PersonalCacheModuleImpl(_roleName, this);
+    // _pcmi = new PersonalCacheModuleImpl(_roleName, this);
   }
   
   void cacheDataAdded(String key, String data) {
