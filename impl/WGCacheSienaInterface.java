@@ -19,7 +19,6 @@ import siena.*;
 *    :might need a general get and put
 *    :send the data received in case of hit
 */
-
 //an inner class to handle a put event.class HandlePutEvent implements Notifiable {
   WGCacheSienaInterface wgCache = null;    public HandlePutEvent(WGCacheSienaInterface wgCache) {
     this.wgCache = wgCache;
@@ -38,7 +37,13 @@ import siena.*;
   public void notify(Notification[] n) { }
 }
 
-public class WGCacheSienaInterface implements Runnable, Notifiable {  Siena si = null;   CacheService wg;    public WGCacheSienaInterface(Siena si) {
+public class WGCacheSienaInterface implements Runnable, Notifiable {  Siena si = null;   CacheService wg;  
+  public WGCacheSienaInterface(){    String master = "senp://localhost:3137";    HierarchicalDispatcher hd = new HierarchicalDispatcher();     try {       hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }     catch(siena.InvalidSenderException e) {      e.printStackTrace();     } 
+  catch(IOException ex) {    ex.printStackTrace();    }  
+    WGCacheSienaInterface wgsi = new WGCacheSienaInterface(hd); 
+    Thread t = new Thread(wgsi); 
+    t.start();  } 
+ public WGCacheSienaInterface(Siena si) {
     this.si = si;     try {
       wg = new CacheService("WGCacheSiena");
     }catch(Exception e){
@@ -46,8 +51,12 @@ public class WGCacheSienaInterface implements Runnable, Notifiable {  Siena si 
   }
   public static void main(String[] args){     String master = "senp://localhost:3137";    if (args.length > 0) {       master = args[0];    }     HierarchicalDispatcher hd = new HierarchicalDispatcher();     try {       hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }     catch(siena.InvalidSenderException e) {      e.printStackTrace();     } 
   catch(IOException ex) {    ex.printStackTrace();    }    WGCacheSienaInterface wgsi = new WGCacheSienaInterface(hd);   Thread t = new Thread(wgsi);   t.start();  }  
-  public void run() {
-    Filter f = new Filter();    f.addConstraint("source", "psl.oracle.OracleSienaInterface");    f.addConstraint("type", "get");    try {      si.subscribe(f, this);     }catch(siena.SienaException se) {       se.printStackTrace();    }    System.out.println("WGCache subscribed to " + f);    
+  public void run(){}  public void testSendEvent(){    System.out.println("GOT HERE");
+    Filter f = new Filter();    f.addConstraint("source", "psl.oracle.OracleSienaInterface");    f.addConstraint("type", "get");
+    if(si == null){    
+      System.out.println("IT IS NULL1");    }        try {      si.subscribe(f, this);     }
+    catch(siena.SienaException se) {       se.printStackTrace();    }    catch(Exception e){      e.printStackTrace();
+    }    System.out.println("WGCache subscribed to " + f);    
     f.clear();
     f.addConstraint("type", "putRequest");
     try {      si.subscribe(f, new HandlePutEvent(this));    } catch (siena.SienaException se) {      se.printStackTrace();    }    System.out.println(" subscribed to " + f);
