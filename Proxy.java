@@ -1,5 +1,6 @@
 package psl.wgcache;
-/******************************************************************
+
+/******************************************************************
 *** File Proxy.java 
 ***
 ***/
@@ -41,14 +42,16 @@ public class Proxy extends Thread {
 		cache = CacheManager;
 		localHostName = config.getLocalHost();
 		localHostIP = config.getLocalIP();
-		adminPath = config.getAdminPath();  }
+		adminPath = config.getAdminPath();
+  }
 	//
 	// run - Main work is done here:
 	//
   public void run() 	{
     String serverName ="";
     URL url;
-    byte line[];    HttpRequestHdr request = new HttpRequestHdr();
+    byte line[];
+    HttpRequestHdr request = new HttpRequestHdr();
     HttpReplyHdr   reply   = new HttpReplyHdr();
 		FileInputStream fileInputStream = null;
 		FileOutputStream fileOutputStream = null;
@@ -58,8 +61,10 @@ public class Proxy extends Thread {
 		try		{
 			//
 			// Read HTTP Request from client 
-			//      request.parse(ClientSocket.getInputStream());
-      url = new URL(request.url);      System.out.println("Request = " + url);
+			//
+      request.parse(ClientSocket.getInputStream());
+      url = new URL(request.url);
+      System.out.println("Request = " + url);
       //
 			// Send Web page with applet to administrator
 			//
@@ -173,7 +178,8 @@ public class Proxy extends Thread {
 				for (int i =0; i < request.contentLength; i++) {
 				   SrvrSocket.getOutputStream().write(ClientSocket.getInputStream().read());    
 				}
-				SrvrSocket.getOutputStream().flush();         // System.out.println("PROXY: SENDING Request to the server url: " + request.url + serverPort(request.url));
+				SrvrSocket.getOutputStream().flush(); 
+        // System.out.println("PROXY: SENDING Request to the server url: " + request.url + serverPort(request.url));
 				//
 				// Find if reply should be cached - 
 				//   First, check if caching is on.
@@ -238,7 +244,7 @@ public class Proxy extends Thread {
 					tempStr.getBytes(0,tempStr.length(),line,0);
 					
 					// Write bits to file
-					fileOutputStream.write(line);
+					// ALPA fileOutputStream.write(line);
           
           payloadForCache = new String(line);
           cache.DecrementFreeSpace(line.length,url.toString());
@@ -261,17 +267,19 @@ public class Proxy extends Thread {
 							tempStr.getBytes(0,tempStr.length(),line,0);
 							
 							// Write bits to file
-							fileOutputStream.write(line);
+							// ALPA fileOutputStream.write(line);
               // System.out.println("The line being written to the file is : " + line);
               
               payloadForCache = payloadForCache.concat(new String(line));
 							cache.DecrementFreeSpace(line.length,url.toString());
 						}
 
-						if (str.length() <= 0)               break;
+						if (str.length() <= 0) 
+              break;
           }
         Dout.flush();
-                //
+        
+        //
 				// With the HTTP reply body do:
 				// (1) Send it to client.
 				// (2) Cache it.
@@ -282,19 +290,17 @@ public class Proxy extends Thread {
 				byte data[] = new byte[2000];
 				int count;
 				while (( count  = in.read(data)) > 0) {
-					// Send bits to client
-					out.write(data,0,count);
-
-					if (isCachable) {
-						// Write bits to file
-						line  = new byte[count];
-						System.arraycopy(data,0,line,0,count);
-            payloadForCache = payloadForCache.concat(new String(line));
-						fileOutputStream.write(line);
-            // System.out.println("LINE : " + line);
-						cache.DecrementFreeSpace(count,url.toString());
-					}
-				}
+                                    // Send bits to client
+                                    out.write(data,0,count);
+                                    if (isCachable) {
+                                        // Write bits to file
+                                        line  = new byte[count];
+                                        System.arraycopy(data,0,line,0,count);
+                                        payloadForCache = payloadForCache.concat(new String(line));
+                                        // ALPA fileOutputStream.write(line);
+                                        // System.out.println("LINE : " + line);
+                                        cache.DecrementFreeSpace(count,url.toString());
+                                    }				}
 				out.flush();
         
         if (payloadForCache != null) {
@@ -303,7 +309,7 @@ public class Proxy extends Thread {
         }
         
 				if (isCachable) {
-          fileOutputStream.close();
+          // ALPA fileOutputStream.close();
           // Add new entry to hash table
           cache.AddToTable(url.toString());
           // Daemon.pcm.accessNotifyURL(url.toString());
@@ -312,7 +318,8 @@ public class Proxy extends Thread {
 			}
 		}
     catch (UnknownHostException uhe) {
-      //      // Requested Server could not be located
+      //
+      // Requested Server could not be located
       //
       System.out.println("Server Not Found.");
       try    {
@@ -334,7 +341,8 @@ public class Proxy extends Thread {
           fileOutputStream.close();
         
 				// Notify client that internal error accured in proxy
-				DataOutputStream out = new DataOutputStream(ClientSocket.getOutputStream());        out.writeBytes(reply.formTimeout());
+				DataOutputStream out = new DataOutputStream(ClientSocket.getOutputStream());
+        out.writeBytes(reply.formTimeout());
         out.flush();
       }
       catch (Exception uhe2) {
@@ -350,7 +358,8 @@ public class Proxy extends Thread {
 			catch (Exception e) {
         e.printStackTrace();
       } 
-    }  }
+    }
+  }
 	//
 	// Private methods
 	//
@@ -471,11 +480,20 @@ public class Proxy extends Thread {
      *
      * @return the deproxied url
      */
-    private String serverUrl(String str)	{      // System.out.println("ServerUrl: reached inside serverURL with _url: " + str);   
+    private String serverUrl(String str)	{
+      // System.out.println("ServerUrl: reached inside serverURL with _url: " + str);   
         int i = str.indexOf("//");   
-        if (i< 0){          System.out.println("ServerUrl: did not find // in the url");
+        if (i< 0){
+          System.out.println("ServerUrl: did not find // in the url");
           return str;          
-        }        str = str.substring(i+2);
+        }
+
+        str = str.substring(i+2);
         i = str.indexOf("/");   
-        if (i< 0) {           System.out.println("ServerUrl: did not find // in the url");          return str;        }        return str.substring(i);   
-    }}
+        if (i< 0) { 
+          System.out.println("ServerUrl: did not find // in the url");
+          return str;
+        }
+        return str.substring(i);   
+    }
+}

@@ -36,10 +36,6 @@ package psl.wgcache;
   wgm.pullFrom(queryData, wgName);
 
   *****************************************************************/
-
-
-
-
 import java.io.*;
 import java.util.*;
 import java.rmi.*;
@@ -176,10 +172,25 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
 
     wg.pushToMember(dataSrc,toBePushed,memName);
   }
-  public void accessNotify(String pcmName, Cacheable data) throws RemoteException {
-    wgRule.what_do_i_do_next(pcmName,data);  }
 
-  
+  public void accessNotify(String pcmName, Cacheable data) throws RemoteException {
+    if (!notPushedEarlier(pcmName, data)) {
+        wgRule.what_do_i_do_next(pcmName,data);
+    }
+  }
+
+  public boolean notPushedEarlier(String pcmName, Cacheable data) {
+    Object res = null; 
+    try {
+        res = cache.query(data.key);
+    } catch (Exception e) {}
+    if (res == null) {
+        cache.put(data.key, data.data, data.size);
+        return false;
+    } else {
+        return true;
+    }
+  }
 
   /*
 

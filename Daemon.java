@@ -1,5 +1,6 @@
 package psl.wgcache;
-/******************************************************************
+
+/******************************************************************
 *** File Daemon.java 
 ***
 ***/
@@ -53,8 +54,6 @@ public class Daemon extends Thread  {
           // System.out.println("Error opening daemon socket");
         }
       }
-
-        
       System.out.print("Creating Config Object...");
       config = new Config();
       config.setIsAppletContext(false);
