@@ -33,7 +33,8 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
   private Properties prop; 
   private String url;
   private String wgName = null;
-  private Daemon proxyDaemon;  
+  private Daemon proxyDaemon;
+  
   /**
    * Constructs a new Cache Module with the specified roleName.
    */      
@@ -42,34 +43,39 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     prop = new Properties();
     wgVec = new Vector();
     this.roleName = roleName;
-    proxyDaemon = new Daemon(this);    // proxyDaemon.main(null);    proxyDaemon.start();    System.out.println("Done creating the proxy daemon");
+    proxyDaemon = new Daemon(this);
+    // proxyDaemon.main(null);
+    proxyDaemon.start();
+    System.out.println("Done creating the proxy daemon");
     try {
       url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);
       log(url);
-    }catch (Exception e) {}
+    } catch (Exception e) {}
     
     try {
       this.cache = new CacheService(roleName);
-    }catch(Exception e){ 
+      log("created cache");
+    } catch(Exception e){ 
       e.printStackTrace();
       System.out.println("CACHE NOT CREATED");
     }
+
     System.setSecurityManager(new java.rmi.RMISecurityManager());
     try {
       FileInputStream in = new FileInputStream(filename);
       prop.load(in);
       String managerUrl = prop.getProperty("workgroupserver.url"); 
-      if(managerUrl == null)        
-        managerUrl = "rmi://disco.cs.columbia.edu/manager";
-      //System.out.println("URL IS:" + url);
-      //manager = new ManagerImpl();      
-      wgm = (WorkgroupManager)Naming.lookup(managerUrl);    
+      if (managerUrl == null) managerUrl = "rmi://disco.cs.columbia.edu/manager";
+      // System.out.println("URL IS:" + url);
+      // manager = new ManagerImpl();      
+      wgm = (WorkgroupManager) Naming.lookup(managerUrl);    
     } catch (Exception e) {
       System.out.println("ERROR: Could not connect to the server");      
       e.printStackTrace();
     }
-    System.out.println("Got to the end");  }
+    System.out.println("Got to the end");
+  }
   
   public String getName() {                    
     return roleName;
@@ -100,12 +106,12 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
   }
   
   public Object put(Cacheable x) { 
-    Object retVal = null;    // System.out.println("DATA BEING CACHED : " + x.key + " " + x.data);
+    Object retVal = null;
+    // System.out.println("DATA BEING CACHED : " + x.key + " " + x.data);
     retVal = genericPut(x);
     try {
       wgm.accessNotify(roleName, x);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       System.out.println("ERROR: Server connection problem in accesNotify");
       e.printStackTrace();     
     }
@@ -161,11 +167,17 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
       log("queryData provided is null");
     }
     return retVal;
- }    public void accessNotifyURL(String _x) {    Cacheable _c = new Cacheable();    _c.key = _x;
+ }
+  
+  public void accessNotifyURL(String _x) {
+    Cacheable _c = new Cacheable();
+    _c.key = _x;
     try {
       wgm.accessNotify(roleName, _c);    
-    }catch(Exception e) {      System.out.println("ERROR: while accessNotifying the WGM about a URL");
-    }  }
+    }catch(Exception e) {
+      System.out.println("ERROR: while accessNotifying the WGM about a URL");
+    }
+  }
 
   public void pushToWorkgroup(Cacheable toBePushed){		
     for(int i = 0; i < wgVec.size(); i++) {
@@ -285,7 +297,8 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
 
   public void createWorkgroup(String wgName) throws WGCException {
     /* if (manager == null) 
-    System.out.println("MANAGER IS NULL");*/    System.out.println("ROLENAME : " + getName());
+    System.out.println("MANAGER IS NULL");*/
+    System.out.println("ROLENAME : " + getName());
     try {
       wgm.newWorkgroup(wgName);
       wgm.joinWorkgroup(wgName, url,roleName);

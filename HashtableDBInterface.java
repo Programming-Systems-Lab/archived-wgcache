@@ -36,7 +36,7 @@ public class HashtableDBInterface implements Serializable {
     try {
       FileInputStream fis = new FileInputStream(dbname);
       ObjectInputStream ois = new ObjectInputStream(fis);
-      h = (Hashtable)ois.readObject();
+      h = (Hashtable) ois.readObject();
       ois.close();
       fis.close();
     } catch(FileNotFoundException e) { /* Create new hashtable */
@@ -61,5 +61,9 @@ public class HashtableDBInterface implements Serializable {
   public synchronized void put(Object key, Object data) {
     h.put(key,data);
   }  
+
+	public synchronized void clear() {
+		h.clear();
+	}
 }
 

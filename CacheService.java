@@ -42,7 +42,8 @@ public class CacheService implements Serializable  {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         shutdown();
-      }    });
+      }
+		});
     System.runFinalization(); 
     currSize = 0;
     // db = new Hashtable();
@@ -78,7 +79,7 @@ public class CacheService implements Serializable  {
   public void put(Object key,Object data,long size) {
     //System.out.println(" THE NEW SIZE IS ==> " + size);    
     if (!full(size)) {
-      log(" NOT FULL");
+      // log(" NOT FULL");
       kwp = new KeyWeightPair(key,size);
       kwp.calculateWeight();
       try {

@@ -12,9 +12,9 @@ public class WorkgroupServer {
       System.out.println("Binding Server to the registry ... ");   
       //String url = "rmi://"+InetAddress.getLocalHost().getHostName()+ ":9999/manager";
       //System.out.println("manager" + url);
-      Naming.rebind("manager",wgm);
+      Naming.rebind("manager", wgm);
       System.out.println("Server waiting for clients ... ");      
-    }catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }

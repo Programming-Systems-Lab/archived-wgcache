@@ -70,11 +70,15 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
     System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
+				log("shutting down WGCSienaRuleEngineImpl");
         hd.shutdown();
-      } });
+      }
+		});
   }
   
-  public void run() { }
+  public void run() {
+		while (true) { try { Thread.currentThread().sleep(5000); log(" . "); } catch (InterruptedException ie) { } }
+	}
   
   public void what_do_i_do_next(String instigator, Cacheable dataHandle) {
     try {
@@ -103,7 +107,7 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
   }
   
   public void notify(Notification n) {
-    this.log("Received a notification\n" + n);
+    log("Received a notification\n" + n);
     Cacheable dataHandle = new Cacheable();
     AttributeValue av = n.getAttribute("Action");
     if (av != null) {

@@ -1,10 +1,10 @@
 package psl.wgcache;
 
 public class WebPCM {
-  Daemon d = new Daemon();
+  Daemon d = new Daemon(null);
   
   public WebPCM() {
-    d.main(null);
+    d.start();
   }
 
   public static void main(String args[]) {
