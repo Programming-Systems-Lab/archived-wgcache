@@ -24,7 +24,7 @@ import java.util.*;
 import java.net.*;
 
 import siena.*;
-import psl.kx.KXNotification;import psl.xues.EventDistiller;
+import psl.kx.KXNotification;import psl.xues.ed.EventDistiller;
 
 public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {
   private Siena si = null;
@@ -78,7 +78,7 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
     } else {      log("Using an embedded Event Distiller Rule Engine, w/ specfile: " + System.getProperty("Specfile"));      /* -- InternalED_RuleEngine starts its own thread, and now actually returns
       (new Thread() {
         public void run() {
-          log("started embedded Event Distiller Rule Engine in a separate thread");          InternalED_RuleEngine = new EventDistiller(mySelf);        }      }).start();      */      InternalED_RuleEngine = new EventDistiller(mySelf, System.getProperty("Specfile")); // equivalent to: new EventDistiller(this);
+	log("started embedded Event Distiller Rule Engine in a separate thread");          InternalED_RuleEngine = new EventDistiller(mySelf);        }      }).start();      */      // InternalED_RuleEngine = new EventDistiller(mySelf, System.getProperty("Specfile")); // equivalent to: new EventDistiller(this);
       Runtime.getRuntime().addShutdownHook(new Thread() {
         public void run() {
 		  		log("shutting down WGCSienaRuleEngineImpl.InternalED_RuleEngine");
