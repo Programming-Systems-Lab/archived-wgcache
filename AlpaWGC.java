@@ -23,15 +23,11 @@ public class AlpaWGC {
     }
     
     System.out.print("Waiting to push data to Gail ");
-    for (int i=0; i<10; i++) {
-      try {
-        Thread.currentThread().sleep(1000);
-      } catch (java.lang.InterruptedException e) { }
-      System.out.print("  .  ");
+    for (int i=0; i<10; i++) {      System.out.print("$");             //Thread.currentThread().sleep(1000);      System.out.print("  .  ");
     }
 
     System.out.println("\nNow, going to push data to Gail");
-    try {
+    /* try {
       if (pcm != null) {
         String data = "http://www.wgcache.com/";
         Cacheable x = new Cacheable("cool WGC website", data, data.length());
@@ -42,6 +38,6 @@ public class AlpaWGC {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    }
+    }*/
   }
 }

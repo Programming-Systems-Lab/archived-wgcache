@@ -42,7 +42,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     prop = new Properties();
     wgVec = new Vector();
     this.roleName = roleName;
-    proxyDaemon = new Daemon(this);    proxyDaemon.start();
+    proxyDaemon = new Daemon(this);    proxyDaemon.main(null);
     try {
       url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);
