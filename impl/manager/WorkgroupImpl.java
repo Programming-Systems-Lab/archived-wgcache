@@ -33,17 +33,17 @@ import java.io.*;
 import java.util.*;import java.rmi.*;
 
 public class WorkgroupImpl implements Workgroup,java.io.Serializable {
-  protected Vector memberVec; // Vector of PersonalCacheModules
+  protected Hashtable memberVec; // Vector of PersonalCacheModules
   private String name;
   private static WorkGroupManager manager;
   private Criteria crit;
-  private History hist;
+  private History hist;  private String workgpMemURL;  private RMI_PCM memPCM;
  
   public WorkgroupImpl(String name, WorkGroupManager manager)  {
     super();
     this.name = name;
     this.manager = manager;
-    this.memberVec = new Vector();
+    this.memberVec = new Hashtable();
     this.crit = new NopCriteria();
     this.hist = new History();
   }    
@@ -60,18 +60,17 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     //1. check with all the members of the workgroup.
 		log("Size of the workgroup is:"+ memberVec.size());
 		Cacheable result = null;
-		if(memberVec.size() > 0){
-			for(int i = 0; i < memberVec.size(); i++) {        this.wgm = (WorkGroupManager)Naming.lookup(url);    
-        PersonalCacheModuleImpl memPCM = (PersonalCacheModuleImpl)Naming.lookup("rmi://"+(String)memberVec.elementAt(i));
-				log("JUST CEHCKING");
-				log("MEMBER PCM :"+ memPCM.getName());
+		if(memberVec.size() > 0){      for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        workgpMemURL = "rmi://"+ ((String)memberVec.get(e.nextElement()));
+        log("Member URL :" +workgpMemURL);
+        try {           memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem while pulling from " + workgpMemURL);
+          ex.printStackTrace();        }
+				log("JUST CHECKING");				
 				try {
 					result = memPCM.query(cname);	          if(result != null){
 						log("Result from other pcm:" + result);
 						break;
 					}
-				}
-				catch(WGCException w){}
+				}        catch(Exception ex){}
 					// 2.check in shared cache
 					//right now nothing is put in it so it is a miss always 
 					// not too sure when would this be used
@@ -123,21 +122,20 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     this.name = name;
   }
 
-  public void addMember(String memberUrl)  {
-    log("adding member " + memberUrl);
-    memberVec.addElement(memberUrl);
+  public void addMember(String memberUrl, String PCMName)  {
+    log("adding member " + memberUrl);    memberVec.put(PCMName,memberUrl);    
   }
 
-  public void removeMember(String memUrl)  {
-    log("removing member " + memUrl);        if (memUrl!=null)      memberVec.removeElement(memUrl);  
-  }
+  public void removeMember(String PCMName)  {
+    log("removing member " + PCMName);        if (PCMName!=null)
+      memberVec.remove(PCMName);  }
 
   public void removeAll()  {
     log("removing all members");
-    String pcmUrl;
-    for(Enumeration e = memberVec.elements(); e.hasMoreElements();) {
-      pcmUrl = (String)e.nextElement();
-      removeMember(pcmUrl);
+    String PCMName;
+    for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {
+      PCMName = (String)e.nextElement();
+      removeMember(PCMName);
     }
   }
 

@@ -23,9 +23,9 @@ import psl.wgcache.support.*;
 import java.util.*;
 import java.io.*;
 import java.rmi.*;
-import java.rmi.server.*;
+import java.rmi.server.*;import java.net.*;
 
-public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Serializable {
+public class PersonalCacheModuleImpl implements PersonalCacheModule {
   protected Criteria crit;
   protected Vector wgVec;
   protected CacheService cache = null;
@@ -36,18 +36,18 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
   private Properties prop; 
   private String url;
   //private Workgroup wg = null;  
-  private String wgName = null;
-  
-  /**
+  private String wgName = null;    /**
    * Constructs a new Cache Module with the specified roleName.
-   */    
-  
+   */      
   public PersonalCacheModuleImpl(String roleName){
     this.filename = "WorkgroupServer.conf";  //hardcoded bad needs to be passed as an argument....
     this.prop = new Properties();
     this.wgVec = new Vector();
     this.roleName = roleName;
     try {
+      this.url = InetAddress.getLocalHost().getHostName()+ "/"+ roleName;
+      RMI_PCMimpl rpcmi = new RMI_PCMimpl(this);      log(url);    }catch (Exception e) {}
+        try {
       this.cache = new CacheService(roleName);
     }catch(Exception e){ 
       e.printStackTrace();
@@ -146,8 +146,8 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
   public void pushToWorkgroup(Cacheable toBePushed){		
     for(int i = 0; i < wgVec.size(); i++) {
       String wgName = (String)wgVec.elementAt(i);
-      log("THE workgroup being pushed to is :" + wgName);
-      wgm.pushTo(new RequestTrace(),toBePushed,wgName);
+      log("THE workgroup being pushed to is :" + wgName);      try {        wgm.pushTo(new RequestTrace(),toBePushed,wgName);      }catch (Exception e) {
+        System.out.println("ERROR: Server connection problem in pushToWorkgroup");        e.printStackTrace();      }
     }
   }
 		
@@ -166,44 +166,33 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
    // 1. check cache
     try {
       result = this.query(queryData);
-    }catch (WGCException w) {}
-     finally {
-       if(result!= null) {
-         log("found \"" + queryData + "\" in cache");    
-         // we found it in our cache, but we still need to notify our
-         // workgroups that we accessed the document       
-         for(int i = 0; i < wgVec.size(); i++) {
-           wgName = (String)wgVec.elementAt(i);   
-           wgm.accessNotify(trace, queryData, wgName);
-         }
-       } else {
-	 //System.out.println("pulling from the workgroup");
-         // 2. pull from shared cache         
-         int i;         log("Number of workgroups joined are:" + wgVec.size());
-         for(i = 0; i < wgVec.size(); i++) {
-           wgName = (String)wgVec.elementAt(i); 
-           log("Workgroup name in the for loop:" + wgName);
-           result = wgm.pullFrom(trace, queryData, wgName);
-           if(result != null) {
-             log("got \"" + queryData + "\" from workgroup " + wgName);
-             break;
-           }
-         }
+    } 
+    catch (WGCException w) {}    finally {      if(result!= null) {
+        log("found \"" + queryData + "\" in cache");    
+        // we found it in our cache, but we still need to notify our
+        // workgroups that we accessed the document       
+        for(int i = 0; i < wgVec.size(); i++) {
+          wgName = (String)wgVec.elementAt(i);             try {            wgm.accessNotify(trace, queryData, wgName);          }          catch (Exception e) {            System.out.println("ERROR: Server connection problem in pullFrom");
+            e.printStackTrace();          }
+        }
+      } else {
+        //System.out.println("pulling from the workgroup");        // 2. pull from shared cache         
+        int i;        log("Number of workgroups joined are:" + wgVec.size());
+        for(i = 0; i < wgVec.size(); i++) {
+          wgName = (String)wgVec.elementAt(i); 
+          log("Workgroup name in the for loop:" + wgName);          try {            result = wgm.pullFrom(trace, queryData, wgName);          } catch (Exception e) {
+            System.out.println("ERROR: Server connection problem in pullFrom");
+            e.printStackTrace();          }          if(result != null) {            log("got \"" + queryData + "\" from workgroup " + wgName);
+            break;
+          }
+        }
          // Notify all wg's of the pull, even if we receive it from the
          // first one queried
          for(i++; i < wgVec.size(); i++) {
            wgName = (String)wgVec.elementAt(i);
-           wgm.accessNotify(trace, queryData, wgName);
-         }
-       }
-       if(result == null) {
-         // we could get from outside here, say other oracle or an oracle serverbut we'll just assume that if
-         // the shared cache couldn't find it, we won't either
-       }
-       return result;
-     }
-  } 
-
+           try {             wgm.accessNotify(trace, queryData, wgName);           }           catch (Exception e) {
+            System.out.println("ERROR: Server connection problem in pullFrom");
+            e.printStackTrace();          }         }      }      if(result == null) {        // we could get from outside here, say other oracle or an oracle serverbut we'll just assume that if        // the shared cache couldn't find it, we won't either      }      return result;    }  }   
   /**
    * Method to implement the shared cache.
    * This method is called when the criteria is applied.
@@ -220,7 +209,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
     int j=0;
     log("Workgroups joined :");
     for(Enumeration e = wgVec.elements(); e.hasMoreElements();){
-      names[i++] = ((Workgroup)e.nextElement()).getName();
+      names[i++] = ((String)e.nextElement());
       j = i-1;
       System.out.println(names[j]);
     }
@@ -257,7 +246,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
     System.out.println("MANAGER IS NULL");*/
     try {
       wgm.newWorkgroup(wgName);
-      wgm.joinWorkgroup(wgName, url);
+      wgm.joinWorkgroup(wgName, url,roleName);
       //wg.addmember(this);
       //wgm.setWorkgroup(wg);      
       wgVec.addElement(wgName);      
@@ -276,7 +265,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
 
   public void joinWorkgroup(String wgName) throws WGCException  {
     try {
-      wgm.joinWorkgroup(wgName,url);
+      wgm.joinWorkgroup(wgName,url,roleName);
     }catch (Exception e){
       System.out.println("ERROR: Server connection problem in joinWorkgroup");
       e.printStackTrace();    
@@ -290,12 +279,12 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Ser
    */
 
   public void leaveWorkgroup(String wgName)  {    
-    for(Enumeration e = wgVec.elements();
-      e.hasMoreElements();) {
-      String tmpWg = (String)e.nextElement();
+    for(Enumeration enum = wgVec.elements();
+      enum.hasMoreElements();) {
+      String tmpWg = (String)enum.nextElement();
       if(wgName.equals(tmpWg)) {
         try {
-          wgm.leaveWorkgroup(wgName, url);
+          wgm.leaveWorkgroup(wgName, roleName);
           wgVec.removeElement(wgName);  
         } catch (Exception e) {
             System.out.println("ERROR: Server connection problem in leaveWorkgroup");
