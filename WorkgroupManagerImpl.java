@@ -46,12 +46,20 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
       e.printStackTrace();
     }
   }
+  
+  private boolean IS_VISUAL = false;
+  private WGC_Manager_Visual wgcmv = null;
+  public void setVisual(WGC_Manager_Visual _wgcmv) {
+    IS_VISUAL = true;
+    wgcmv = _wgcmv;
+  }
 
   public void newWorkgroup(String wgName) throws WGCException,RemoteException {
     log("creating workgroup " + wgName);
     if(workgroups.containsKey(wgName)) throw new WGCException("Workgroup already exists");    
     WorkgroupImpl wg = new WorkgroupImpl(wgName, this);    
     workgroups.put(wgName, wg);
+    if (IS_VISUAL) wgcmv.workgroupAdded(wgName);
     return;
   }
 
@@ -133,6 +141,7 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     Workgroup wg = getWorkgroup(wgName);
     workgroups.put(wgName,wg);
     wg.addMember(url, memName);
+    if (IS_VISUAL) wgcmv.memberJoined(wgName, memName);
   }
 
   public void deleteWorkgroup(String wgName) throws WGCException, RemoteException {

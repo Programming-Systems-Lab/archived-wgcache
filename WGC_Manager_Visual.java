@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 
 import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.CheckboxGroup;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
@@ -18,16 +20,20 @@ import java.awt.TextField;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
+import java.util.Hashtable;
+
 import psl.wgcache.Cacheable;
 import psl.wgcache.PersonalCacheModuleImpl;
 import psl.wgcache.WGCException;
 
-public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
+public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 600;
   private static final int MAX_HEIGHT = 300;  private static final int NUM_ENTRIES = 10;
   // private AWT variables
   private Frame _frame = null;
@@ -71,10 +77,14 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
   private Panel       _botPanel1_2_2 = null;
   private GridBagLayout _botPanel1_2_1GBL = null;
   private GridBagConstraints _botPanel1_2_1GBC = null;
-  private Label       _botPanel1_2_KeyLabel = null;
-  private Label       _botPanel1_2_DataLabel = null;
-  private TextField   _botPanel1_2_KeyText = null;
-  private TextField   _botPanel1_2_DataText = null;
+  private Label       _botPanel1_2_InstigatorLabel = null;
+  private Label       _botPanel1_2_TargetLabel = null;
+  private Label       _botPanel1_2_TypeLabel = null;
+  private TextField   _botPanel1_2_InstigatorText = null;
+  private TextField   _botPanel1_2_TargetText = null;
+  private CheckboxGroup _botPanel1_2_TypeCBoxGrp = null;
+  private Checkbox    _botPanel1_2_TypeCheckbox1 = null;
+  private Checkbox    _botPanel1_2_TypeCheckbox2 = null;
   private Button      _botPanel1_2_OKBut = null;
   private Button      _botPanel1_2_ESCBut = null;
   
@@ -87,7 +97,6 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
   private TextField   _botPanel1_3_WGText = null;
   private TextField   _botPanel1_3_UsersText = null;
   private Button      _botPanel1_3_CreateWG_But = null;
-  private Button      _botPanel1_3_JoinWG_But = null;
   private Button      _botPanel1_3_ESCBut = null;
   private TextArea    _botPanel2_TextArea = null;
   // Personal Cache Module stuff ///////////////////////
@@ -125,7 +134,7 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     // Main panel settings /////////////////////////////
     _midPanel = new Panel(new GridLayout(1, 2, 5, 25));
         _midPanel1 = new Panel(new BorderLayout());
-    _midPanel1.add(_midLabel1 = new Label("Cached data [key-data]", Label.CENTER), BorderLayout.NORTH);
+    _midPanel1.add(_midLabel1 = new Label("Push rules [Instigator-Target]", Label.CENTER), BorderLayout.NORTH);
     _midLabel1.setFont(_smallFont);
     _midLabel1.setForeground(_textColour);
     _midPanel1.add(_midPanel1Scp = new ScrollPane(), BorderLayout.CENTER);    _midPanel1Scp.add(_midPanel1_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
@@ -134,10 +143,12 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _midLabel2.setFont(_smallFont);
     _midLabel2.setForeground(_textColour);    _midPanel2.add(_midPanel2Scp = new ScrollPane(), BorderLayout.CENTER);    _midPanel2Scp.add(_midPanel2_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
         _midPanel3 = new Panel(new BorderLayout());
-    _midPanel3.add(_midLabel3 = new Label("WG info", Label.CENTER), BorderLayout.NORTH);
+    _midPanel3.add(_midLabel3 = new Label("WG members", Label.CENTER), BorderLayout.NORTH);
     _midLabel3.setFont(_smallFont);
     _midLabel3.setForeground(_textColour);
-    _midPanel3.add(_midPanel3Scp = new ScrollPane(), BorderLayout.CENTER);    _midPanel3Scp.add(_midPanel3_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
+    _midPanel3.add(_midPanel3Scp = new ScrollPane(), BorderLayout.CENTER);
+    _midPanel3Scp.add(_midPanel3_1 = new Panel(new CardLayout()));
+    _midPanel3_1.add(new Panel(new GridLayout(NUM_ENTRIES, 1)), "TOP");    // _midPanel3Scp.add(_midPanel3_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
     // _midPanel3.add(_midPanel3_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)), BorderLayout.CENTER);
         _midPanel.add(_midPanel1);
     _midPanel.add(_midPanel2);
@@ -148,13 +159,13 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _botPane = new JTabbedPane(SwingConstants.LEFT);
     _botPanel1 = new Panel(new CardLayout());
     _botPanel1_1 = new Panel(new GridLayout(1, 2));
-    _botPanel1_1_AddDataBut = new Button("Add Cached Data");
+    _botPanel1_1_AddDataBut = new Button("Add [Push] Rule");
     _botPanel1_1_AddDataBut.setFont(_largeFont);
     _botPanel1_1_AddDataBut.setForeground(Color.white);
     _botPanel1_1_AddDataBut.setBackground(_buttonColour);
     _botPanel1_1_AddDataBut.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
-        ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "ADD DATA");
+        ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "ADD RULE");
       }
     });
     _botPanel1_1_AddWGBut = new Button("Add Workgroup");
@@ -170,16 +181,21 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _botPanel1_1.add(_botPanel1_1_AddWGBut);
     // ------------------------------------------------------------------------------- //
     _botPanel1_2 = new Panel(new GridLayout(1, 2));
-    _botPanel1_2_KeyLabel = new Label("Key: ", Label.RIGHT);
-    _botPanel1_2_KeyLabel.setFont(_mediumFont);
-    _botPanel1_2_DataLabel = new Label("Data: ", Label.RIGHT);
-    _botPanel1_2_DataLabel.setFont(_mediumFont);
-    _botPanel1_2_KeyText = new TextField();
-    _botPanel1_2_KeyText.setForeground(Color.white);
-    _botPanel1_2_KeyText.setBackground(_buttonColour);
-    _botPanel1_2_DataText = new TextField();
-    _botPanel1_2_DataText.setForeground(Color.white);
-    _botPanel1_2_DataText.setBackground(_buttonColour);
+    _botPanel1_2_InstigatorLabel = new Label("Instigator: ", Label.RIGHT);
+    _botPanel1_2_InstigatorLabel.setFont(_mediumFont);
+    _botPanel1_2_TargetLabel = new Label("Target: ", Label.RIGHT);
+    _botPanel1_2_TargetLabel.setFont(_mediumFont);
+    _botPanel1_2_TypeLabel = new Label("Type: ", Label.RIGHT);
+    _botPanel1_2_TypeLabel.setFont(_mediumFont);
+    _botPanel1_2_InstigatorText = new TextField();
+    _botPanel1_2_InstigatorText.setForeground(Color.white);
+    _botPanel1_2_InstigatorText.setBackground(_buttonColour);
+    _botPanel1_2_TargetText = new TextField();
+    _botPanel1_2_TargetText.setForeground(Color.white);
+    _botPanel1_2_TargetText.setBackground(_buttonColour);
+    _botPanel1_2_TypeCBoxGrp = new CheckboxGroup();
+    _botPanel1_2_TypeCheckbox1 = new Checkbox("Module", _botPanel1_2_TypeCBoxGrp, true);
+    _botPanel1_2_TypeCheckbox2 = new Checkbox("Group", _botPanel1_2_TypeCBoxGrp, false);
     _botPanel1_2_OKBut = new Button("O.K.");
     _botPanel1_2_OKBut.setFont(_largeFont);
     _botPanel1_2_OKBut.setForeground(Color.white);
@@ -195,32 +211,39 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _botPanel1_2_1GBC.weightx = 4.0;
     _botPanel1_2_1GBC.gridwidth = GridBagConstraints.REMAINDER;
     // ------------------------------------------------------------------------------- //
-    _botPanel1_2_1.add(_botPanel1_2_KeyLabel);
-    _botPanel1_2_1GBL.setConstraints(_botPanel1_2_KeyText, _botPanel1_2_1GBC);
-    _botPanel1_2_1.add(_botPanel1_2_KeyText);
-    _botPanel1_2_1.add(_botPanel1_2_DataLabel);
-    _botPanel1_2_1GBL.setConstraints(_botPanel1_2_DataText, _botPanel1_2_1GBC);
-    _botPanel1_2_1.add(_botPanel1_2_DataText);
+    _botPanel1_2_1.add(_botPanel1_2_InstigatorLabel);
+    _botPanel1_2_1GBL.setConstraints(_botPanel1_2_InstigatorText, _botPanel1_2_1GBC);
+    _botPanel1_2_1.add(_botPanel1_2_InstigatorText);
+    _botPanel1_2_1.add(_botPanel1_2_TargetLabel);
+    _botPanel1_2_1GBL.setConstraints(_botPanel1_2_TargetText, _botPanel1_2_1GBC);
+    _botPanel1_2_1.add(_botPanel1_2_TargetText);
+    _botPanel1_2_1.add(_botPanel1_2_TypeLabel);
+    _botPanel1_2_1.add(_botPanel1_2_TypeCheckbox1);
+    _botPanel1_2_1.add(_botPanel1_2_TypeCheckbox2);
     // ------------------------------------------------------------------------------- //
     _botPanel1_2.add(_botPanel1_2_2 = new Panel(new GridLayout(1, 2)));
     _botPanel1_2_2.add(_botPanel1_2_OKBut);
     _botPanel1_2_OKBut.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
-        String key = _botPanel1_2_KeyText.getText();
-        String data = _botPanel1_2_DataText.getText();
-        if (! key.equals("")) {
+        String instigator = _botPanel1_2_InstigatorText.getText();
+        String target = _botPanel1_2_TargetText.getText();
+        if (! instigator.equals("") && ! target.equals("")) {
           // _pcmi.put(new Cacheable(key, data, data.length()));
+          // create the new XML push rule in here
+          pushRuleAdded(instigator, target, _botPanel1_2_TypeCheckbox2.getState());
         }
-        _botPanel1_2_KeyText.setText("");
-        _botPanel1_2_DataText.setText("");
+        _botPanel1_2_InstigatorText.setText("");
+        _botPanel1_2_TargetText.setText("");
+        _botPanel1_2_TypeCheckbox1.setState(true);
         ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "TOP");
       }
     });
     _botPanel1_2_2.add(_botPanel1_2_ESCBut);
     _botPanel1_2_ESCBut.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
-        _botPanel1_2_KeyText.setText("");
-        _botPanel1_2_DataText.setText("");
+        _botPanel1_2_InstigatorText.setText("");
+        _botPanel1_2_TargetText.setText("");
+        _botPanel1_2_TypeCheckbox1.setState(true);
         ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "TOP");
       }
     });
@@ -234,16 +257,13 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _botPanel1_3_WGText.setForeground(Color.white);
     _botPanel1_3_WGText.setBackground(_buttonColour);
     _botPanel1_3_UsersText = new TextField();
+    _botPanel1_3_UsersText.setEnabled(false);
     _botPanel1_3_UsersText.setForeground(Color.white);
     _botPanel1_3_UsersText.setBackground(_buttonColour);
     _botPanel1_3_CreateWG_But = new Button("Create");
     _botPanel1_3_CreateWG_But.setFont(_largeFont);
     _botPanel1_3_CreateWG_But.setForeground(Color.white);
     _botPanel1_3_CreateWG_But.setBackground(_buttonColour);
-    _botPanel1_3_JoinWG_But = new Button("Join");
-    _botPanel1_3_JoinWG_But.setFont(_largeFont);
-    _botPanel1_3_JoinWG_But.setForeground(Color.white);
-    _botPanel1_3_JoinWG_But.setBackground(_buttonColour);
     _botPanel1_3_ESCBut = new Button("Cancel");
     _botPanel1_3_ESCBut.setFont(_largeFont);
     _botPanel1_3_ESCBut.setForeground(Color.white);
@@ -262,35 +282,19 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _botPanel1_3_1GBL.setConstraints(_botPanel1_3_UsersText, _botPanel1_3_1GBC);
     _botPanel1_3_1.add(_botPanel1_3_UsersText);
     // ------------------------------------------------------------------------------- //
-    _botPanel1_3.add(_botPanel1_3_2 = new Panel(new GridLayout(1, 3)));
+    _botPanel1_3.add(_botPanel1_3_2 = new Panel(new GridLayout(1, 2)));
     _botPanel1_3_2.add(_botPanel1_3_CreateWG_But);
     _botPanel1_3_CreateWG_But.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent ae) {
         String wgName = _botPanel1_3_WGText.getText();
         if (! wgName.equals("")) {
-					/*
           try {
             // _pcmi.createWorkgroup(wgName);
-            workgroupAdded(wgName);
-          } catch (WGCException wgce) { }
-					*/
-        }
-        _botPanel1_3_WGText.setText("");
-        _botPanel1_3_UsersText.setText("");
-        ((CardLayout) _botPanel1.getLayout()).show(_botPanel1, "TOP");
-      }
-    });
-    _botPanel1_3_2.add(_botPanel1_3_JoinWG_But);
-    _botPanel1_3_JoinWG_But.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent ae) {
-        String wgName = _botPanel1_3_WGText.getText();
-        if (! wgName.equals("")) {
-					/*
-          try {
-            // _pcmi.joinWorkgroup(wgName);
-            workgroupAdded(wgName);
-          } catch (WGCException wgce) { }
-					*/
+            WorkgroupServer.wgm.newWorkgroup(wgName);
+            // workgroupAdded(wgName); -- let the WGM do this ... 
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
         _botPanel1_3_WGText.setText("");
         _botPanel1_3_UsersText.setText("");
@@ -307,7 +311,7 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     });
     /////////////////////////////////////////////////////////////////////////////////////
     _botPanel1.add(_botPanel1_1, "TOP");
-    _botPanel1.add(_botPanel1_2, "ADD DATA");
+    _botPanel1.add(_botPanel1_2, "ADD RULE");
     _botPanel1.add(_botPanel1_3, "ADD WG");
 
     _botPanel2 = new Panel(new GridLayout(1, 1));
@@ -338,6 +342,8 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     _frame.show();
     /////////////////////////////////////////////////////////////////////////////////////
     // _pcmi = new PersonalCacheModuleImpl(_roleName, this);
+    WorkgroupServer.main((String []) null);
+    WorkgroupServer.wgm.setVisual(this);
   }
   
   void cacheDataAdded(String key, String data) {
@@ -349,12 +355,53 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     p.validate(); _midPanel1Scp.validate(); _midPanel1_1.validate();
   }
   
+  private final Hashtable wgMembersPanelHash = new Hashtable();
+  private String topWgMembersPanel = "TOP";
   void workgroupAdded(String wgName) {
     if (wgName.equals("")) return;
+    
+    Panel wgPanel = new Panel(new GridLayout(NUM_ENTRIES, 1));    _midPanel3_1.add(wgPanel, wgName);
+    wgMembersPanelHash.put(wgName, wgPanel);
     Panel p = new Panel(new GridLayout(1, 1));
-    p.add(new TextField(wgName));
+    final TextField tf = new TextField(wgName);
+    tf.addMouseListener(new MouseAdapter() {
+      public void mouseClicked(MouseEvent me) {
+        System.out.println("clicked on: " + tf.getText());
+        if (! topWgMembersPanel.equals(tf.getText())) {
+          ((CardLayout) _midPanel3_1.getLayout()).show(_midPanel3_1, tf.getText());
+          topWgMembersPanel = tf.getText();
+        }
+      }
+    });
+    tf.setEditable(false);
+    p.add(tf);
     _midPanel2_1.add(p);
-    p.validate(); _midPanel2Scp.validate(); _midPanel2_1.validate();  }
+    
+    wgPanel.validate(); _midPanel3Scp.validate(); _midPanel3_1.validate();    p.validate(); _midPanel2Scp.validate(); _midPanel2_1.validate();  }
+  
+  private final static Color _moduleColour = new Color(129, 158, 193); // mauve
+  private final static Color _groupColour = Color.green;
+  void pushRuleAdded(String instigator, String target, boolean targetIsGroup) {
+    if (instigator.equals("") || target.equals("")) return;
+    Panel p = new Panel(new GridLayout(1, 2));
+    TextField tfInstigator, tfTarget;
+    p.add(tfInstigator = new TextField(instigator));
+    p.add(tfTarget = new TextField(target));
+    tfInstigator.setBackground(targetIsGroup ? _groupColour : _moduleColour);
+    tfTarget.setBackground(targetIsGroup ? _groupColour : _moduleColour);
+    _midPanel1_1.add(p);
+    p.validate(); _midPanel1Scp.validate(); _midPanel1_1.validate();
+    System.out.println("Entered pushRuleAdded: " + instigator + ", " + target + ", " + targetIsGroup);
+  }
+  
+  void memberJoined(String wgName, String memberName) {
+    Panel wgPanel = (Panel) wgMembersPanelHash.get(wgName);
+
+    Panel p = new Panel(new GridLayout(1, 1));
+    p.add(new TextField(memberName));
+    wgPanel.add(p);
+    ((CardLayout) _midPanel3_1.getLayout()).show(_midPanel3_1, wgName);
+    p.validate(); wgPanel.validate(); _midPanel3Scp.validate(); _midPanel3_1.validate();  }
   
   public static void main(String args[]) {
     WGC_Manager_Visual wgcmv = new WGC_Manager_Visual("WGC_Manager_Visual test");
