@@ -268,10 +268,12 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
       public void actionPerformed(ActionEvent ae) {
         String wgName = _botPanel1_3_WGText.getText();
         if (! wgName.equals("")) {
+					/*
           try {
             // _pcmi.createWorkgroup(wgName);
             workgroupAdded(wgName);
           } catch (WGCException wgce) { }
+					*/
         }
         _botPanel1_3_WGText.setText("");
         _botPanel1_3_UsersText.setText("");
@@ -283,10 +285,12 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
       public void actionPerformed(ActionEvent ae) {
         String wgName = _botPanel1_3_WGText.getText();
         if (! wgName.equals("")) {
+					/*
           try {
             // _pcmi.joinWorkgroup(wgName);
             workgroupAdded(wgName);
           } catch (WGCException wgce) { }
+					*/
         }
         _botPanel1_3_WGText.setText("");
         _botPanel1_3_UsersText.setText("");
