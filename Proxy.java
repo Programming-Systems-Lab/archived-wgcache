@@ -23,7 +23,8 @@ public class Proxy extends Thread {
 	String localHostIP = null;               // Local machine IP address
 	String adminPath = null;                 // Path of admin applet
 	Config config = null;                    // Config object
-	
+	String payloadForCache = null;
+  Cacheable toBeCached = null;
 	//
 	// Public member methods
 	//
@@ -41,8 +42,6 @@ public class Proxy extends Thread {
 		localHostName = config.getLocalHost();
 		localHostIP = config.getLocalIP();
 		adminPath = config.getAdminPath();  }
-
-
 	//
 	// run - Main work is done here:
 	//
@@ -99,27 +98,22 @@ public class Proxy extends Thread {
 			//
          
       Cacheable retVal = Daemon.pcm.query(url.toString());
-      System.out.println(retVal);
       if (retVal != null) {
-        // byte _data[] = (byte[])(retVal.data);
-        // int _count = _data.length;
-        // System.out.println("The data from the cache recieved is: " + _data + "and the count is : " + _count);
-        /*System.out.println("Hit! Getting from cache!!!");
-        OutputStream out = ClientSocket.getOutputStream();
+        System.out.println("Returned string from the cache : " + (String)retVal.data);
+         System.out.println("Hit! Getting from cache!!!");
 
         // Send the bits to client
-        byte data[] = (byte[])(retVal.data);
+        byte data[] = ((String)retVal.data).getBytes();
         int count = data.length;
-        System.out.println("The data from the cache recieved is: " + data + "and the count is : " + count);
+        // System.out.println("The data from the cache recieved is: " + data + "and the count is : " + count);
+        OutputStream out = ClientSocket.getOutputStream();
         while (-1 < count){
         	out.write(data);
         }
         out.flush();
-        System.out.println("Out of the loop after writing the bytes");*/
+        System.out.println("Out of the loop after writing the bytes");
       }
-        
-      
-			 if (cache.IsCached(url.toString())) {
+			 /* if (cache.IsCached(url.toString())) {
 				//
 				// Client request is allready cached - get it from file
 				//				
@@ -139,7 +133,7 @@ public class Proxy extends Thread {
 				}
 				out.flush();
 				fileInputStream.close();
-			}
+			} */
       //
 			// We do not have the page in cache
 			// 
@@ -249,8 +243,7 @@ public class Proxy extends Thread {
 					// Write bits to file
 					fileOutputStream.write(line);
           
-          Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
-          Daemon.pcm.put(toBeCached);
+          payloadForCache = new String(line);
           cache.DecrementFreeSpace(line.length,url.toString());
 				}
 				// 
@@ -273,13 +266,14 @@ public class Proxy extends Thread {
 							// Write bits to file
 							fileOutputStream.write(line);
               System.out.println("The line being written to the file is : " + line);
-              Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
-              Daemon.pcm.put(toBeCached);
+              
+              payloadForCache = payloadForCache.concat(new String(line));
 							cache.DecrementFreeSpace(line.length,url.toString());
 						}
 
 						if (str.length() <= 0)               break;
-          }        Dout.flush();
+          }
+        Dout.flush();
                 //
 				// With the HTTP reply body do:
 				// (1) Send it to client.
@@ -297,15 +291,16 @@ public class Proxy extends Thread {
 					if (isCachable) {
 						// Write bits to file
 						line  = new byte[count];
-						System.arraycopy(data,0,line,0,count);            
-            Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
-            Daemon.pcm.put(toBeCached);
+						System.arraycopy(data,0,line,0,count);
+            payloadForCache = payloadForCache.concat(new String(line));
 						fileOutputStream.write(line);
             System.out.println("LINE : " + line);
 						cache.DecrementFreeSpace(count,url.toString());
 					}
 				}
 				out.flush();
+        Cacheable toBeCached = new Cacheable(url.toString(),payloadForCache,payloadForCache.length());
+        Daemon.pcm.put(toBeCached);                
 				if (isCachable) {
           fileOutputStream.close();
           // Add new entry to hash table

@@ -33,10 +33,10 @@ public class CacheService implements Serializable  {
   public long currSize;
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
-  public transient DBInterface db;  
-  //public transient HashtableDBInterface db;
-  //public HashtableDBInterface db;
-  //public Hashtable db;
+  public DBInterface db;  
+  // public transient HashtableDBInterface db;
+  // public HashtableDBInterface db;
+  // public Hashtable db;
 
   public CacheService(String name) throws Exception {
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -45,7 +45,7 @@ public class CacheService implements Serializable  {
       }    });
     System.runFinalization(); 
     currSize = 0;
-    //db = new Hashtable();
+    // db = new Hashtable();
     db = new  DBInterface(name);
     // db = new HashtableDBInterface(name);
   }
