@@ -33,7 +33,10 @@ import psl.wgcache.impl.manager.*;
        System.out.println("JOINED Oracle-Parser");
      }catch (WGCException w){
         System.out.println("FAILED to join the group Oracle-Parser");
-      } 
-      pcm1.printJoinedWorkgroupNames();      pcm2.printJoinedWorkgroupNames();
+      }
+     try {
+       if(pcm2!=null) {
+       Cacheable result = pcm2.query(x);  
+       System.out.println("RESULT"+result);       }     }catch (WGCException w) {}           pcm1.printJoinedWorkgroupNames();      pcm2.printJoinedWorkgroupNames();
   }
 }
