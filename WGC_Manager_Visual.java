@@ -42,9 +42,9 @@ public class WGC_Manager_Visual {
   // private AWT variables
   private Frame _frame = null;
   private Panel _panel = null;
-  private static final Color _panelColour = Color.yellow; // Color.green;
+  private static final Color _panelColour = Color.black; // Color.yellow; // Color.green;
   private static final Color _buttonColour = new Color(128, 128, 255);
-  private static final Color _textColour = new Color(128, 64, 0);
+  private static final Color _textColour = Color.white; // new Color(128, 64, 0);
   // Top Panel settings ////////////////////////////////
   private Panel _topPanel = null;
   private Label _topLabel1 = null;
@@ -125,7 +125,7 @@ public class WGC_Manager_Visual {
 
     // Header settings /////////////////////////////////
     _topPanel = new Panel(new GridLayout(2, 1));
-    _topLabel1 = new Label("Personal Cache Module - WGC", Label.CENTER);
+    _topLabel1 = new Label("Workgroup Cache", Label.CENTER);
     _topLabel1.setFont(_largeFont);
     _topLabel1.setForeground(_textColour);
     _topLabel2 = new Label("Manager", Label.CENTER);

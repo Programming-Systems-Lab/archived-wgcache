@@ -1,5 +1,4 @@
 @echo off
-echo Compiling sources for Workgroup Cache
 cd\pslcvs
 
 echo Compiling Workgroup Cache and Xues
