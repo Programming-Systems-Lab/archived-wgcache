@@ -15,6 +15,7 @@ import java.util.*;
 import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
+
 public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Serializable {
   protected Criteria crit;
   protected Vector wgVec;

@@ -29,7 +29,7 @@ public class CacheService implements CacheManager,java.io.Serializable  {
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
   //public transient DBInterface db;  
-  public transient HashtableDBInterface db;  //public Hashtable db;
+  //public transient HashtableDBInterface db;  public HashtableDBInterface db;  //public Hashtable db;
 
   public CacheService(String name) throws Exception {
     Runtime.getRuntime().addShutdownHook(new Thread() {

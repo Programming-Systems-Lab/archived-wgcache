@@ -42,6 +42,18 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     workgroups.put(wgName, wg);
     return wg;
   }
+  
+  public void joinWorkgroup(String wgname, String url,String memName) throws WGCException,RemoteException {
+    String wgname;
+    wgName = wgname;
+    if(workgroups.containsKey(wgName))
+      throw new WGCException("Workgroup already exists");
+    Workgroup wg = getWorkgroup(wgName);
+    log("adding " + memName + "to the workgroup " +wgName);
+    workgroups.put(wgName,wg);
+    wg.addMember(url,memName);
+  }
+  
   public void deleteWorkgroup(String name) throws RemoteException {
     workgroups.remove(name);
   }

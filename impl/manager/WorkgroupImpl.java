@@ -23,7 +23,7 @@ import java.io.*;
 import java.util.*;
 
 public class WorkgroupImpl implements Workgroup,java.io.Serializable {
-  protected Vector memberVec; // Vector of PersonalCacheModules
+  protected Hashtable memberVec; // Vector of PersonalCacheModules
   private String name;
   private static WorkGroupManager manager;
   private Criteria crit;
@@ -33,11 +33,10 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     super();
     this.name = name;
     this.manager = manager;
-    this.memberVec = new Vector();
+    this.memberVec = new Hashtable();
     this.crit = new NopCriteria();
     this.hist = new History();
-  }
-  
+  }    
   public Cacheable pullFrom(RequestTrace trace, Object cname)  {
 		log("Workgroup name is:" +this.name);
 		if(cname != null) { 
@@ -114,8 +113,8 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     this.name = name;
   }
 
-  public void addMember(PersonalCacheModule member)  {
-    log("adding member " + member.getName());
+  public void addMember(String memberUrl,String memName)  {
+    log("adding member " + memName);
     memberVec.addElement(member);
   }
 
