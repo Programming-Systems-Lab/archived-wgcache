@@ -23,7 +23,7 @@ public class AlpaWGC {
     }
     
     System.out.print("Waiting to push data to Gail ");
-    for (int i=0; i<5; i++) {      try {
+    for (int i=0; i<10; i++) {      try {
         System.out.print("$");       
         Thread.currentThread().sleep(1000);        System.out.print("  .  ");      } catch(Exception e) {}
     }

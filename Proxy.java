@@ -143,7 +143,7 @@ public class Proxy extends Thread {
           } catch(Exception e) {
             e.printStackTrace();
           }
-          System.out.println("after sending request to the server");
+          // System.out.println("after sending request to the server");
           request.url = serverUrl(request.url);
 				}
            
@@ -226,7 +226,9 @@ public class Proxy extends Thread {
 					
 					// Write bits to file
 					fileOutputStream.write(line);
-					cache.DecrementFreeSpace(line.length,url.toString());
+          Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
+          Daemon.pcm.put(toBeCached);
+          cache.DecrementFreeSpace(line.length,url.toString());
 				}
 
 
@@ -249,6 +251,8 @@ public class Proxy extends Thread {
 							
 							// Write bits to file
 							fileOutputStream.write(line);
+              Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
+              Daemon.pcm.put(toBeCached);
 							cache.DecrementFreeSpace(line.length,url.toString());
 						}
 
@@ -271,8 +275,11 @@ public class Proxy extends Thread {
 					if (isCachable) {
 						// Write bits to file
 						line  = new byte[count];
-						System.arraycopy(data,0,line,0,count);
+						System.arraycopy(data,0,line,0,count);            
+            Cacheable toBeCached = new Cacheable(url.toString(),line,line.length);
+            Daemon.pcm.put(toBeCached);
 						fileOutputStream.write(line);
+            System.out.println("LINE : " + line);
 						cache.DecrementFreeSpace(count,url.toString());
 					}
 				}
@@ -281,7 +288,7 @@ public class Proxy extends Thread {
           fileOutputStream.close();
           // Add new entry to hash table
           cache.AddToTable(url.toString());
-          Daemon.pcm.accessNotifyURL(url.toString());
+          // Daemon.pcm.accessNotifyURL(url.toString());
           // ALPA:
         }
 			}

@@ -133,7 +133,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
         log("Member URL: " +workgpMemURL);
         try {
           RMI_PCM memPCM2 = (RMI_PCM) Naming.lookup(workgpMemURL);
-          memPCM2.WGCPut(toBePushed);
+          memPCM2.WGCPut(toBePushed);          System.out.println("Found the target");
         }
         catch (Exception ex) {
           System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
@@ -164,14 +164,14 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
         System.out.println("ERROR: Server connection problem in pushToMember to: " + srcUrl);
         ex.printStackTrace();
       }
-      if(toBePushed ==null)
-        return;
-      
+      if(toBePushed ==null) {        System.out.println("Data was null so returning ... ");
+        return;            }
       workgpMemURL = ((String) memberVec.get(targetMember));
       log("Member URL: " +workgpMemURL);
       try {
         RMI_PCM memPCM2 = (RMI_PCM) Naming.lookup(workgpMemURL);
         memPCM2.WGCPut(toBePushed);
+        System.out.println("Found the target in pushtomember");
       }
       catch (Exception ex) {
         System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
