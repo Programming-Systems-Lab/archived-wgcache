@@ -13,7 +13,8 @@ package psl.wgcache.impl.manager;/** Copyright (c) 2000: The Trustees of Colum
  */
 import psl.wgcache.impl.*;
 import psl.wgcache.exception.*;
-import java.io.*;import java.net.*;
+import java.io.*;
+import java.util.*;import java.net.*;
 import siena.*;
 
 public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {  Siena si = null;  WorkgroupManagerImpl wgm = null;  
@@ -39,10 +40,9 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
     }catch(Exception e) {
       e.printStackTrace();
     }  }  
-  private void generatePutEvent(String instigator, String hostname, Cacheable dataHandle) {    log("Generating SmartEvent");
-    Notification  n = new Notification();    n.putAttribute("source", "psl.wgcache.impl.WGCSienaInterface");
-    n.putAttribute("SrcID","123455");    n.putAttribute("hostname", hostname);
-    n.putAttribute("Instigator", instigator);         n.putAttribute("DataHandle",(String)dataHandle.key);
+  private void generatePutEvent(String instigator, String hostname, Cacheable dataHandle) {
+    KXNotification kxnotify = new KXNotification();        log("Generating SmartEvent");        Hashtable metaData = new Hashtable();       metaData.put("hostname", hostname);    metaData.put("Instigator", instigator);    metaData.put("DataHandle",(String)dataHandle.key);    
+    Notification  n = EDInputNotification("psl.wgcache.impl.WGCSienaInterface",123455,metaData);
     try {
       si.publish(n);
     }
