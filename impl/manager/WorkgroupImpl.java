@@ -51,8 +51,8 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
     //1. check with all the members of the workgroup.
 		log("Size of the workgroup is:"+ memberVec.size());
 		Cacheable result = null;
-		if(memberVec.size() > 0){      for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        workgpMemURL = ((String)memberVec.get(e.nextElement()));
-        log("Member URL :" +workgpMemURL);
+		if(memberVec.size() > 0){      for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        workgpMemURL = ((String) memberVec.get(e.nextElement()));
+        log("Member URL: " + workgpMemURL);
         try {           memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem while pulling from " + workgpMemURL);
           ex.printStackTrace();        }
 				log("JUST CHECKING");				
@@ -94,13 +94,14 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
       }catch(Exception e){
         e.printStackTrace();
       }
-      if(toBePushed ==null)        return;     
+            if(toBePushed ==null) {
+        log("data was NULL after query");        return;           }      
       for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        
         String currKey = (String)e.nextElement();
         if(currKey.equalsIgnoreCase(memDataSrc))
           continue;
                 workgpMemURL = ((String) memberVec.get(currKey));
-        log("Member URL :" +workgpMemURL);
+        log("Member URL: " +workgpMemURL);
         try {          RMI_PCM memPCM2 = (RMI_PCM) Naming.lookup(workgpMemURL);
           memPCM2.WGCPut(toBePushed);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
           ex.printStackTrace();        }      }     }  }    public boolean containsMember(String pcmName){    log("entered containsMember in " + this.getName() + " w/ " + pcmName);    boolean retVal = this.memberVec.containsKey(pcmName);    log("and returns: " + retVal);

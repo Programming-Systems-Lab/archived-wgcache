@@ -34,7 +34,7 @@ import psl.wgcache.impl.manager.*;
    /* while (true) {      try {        Thread.currentThread().sleep(1000);        System.out.print(" . ");      } catch (Exception e) { }    }
   */    try {
       if (pcm != null) {
-        Object result = pcm.put(x);          //pcm.pushToWorkgroup(x);
+        //Object result = pcm.put(x);          //pcm.pushToWorkgroup(x);
         //Cacheable out = pcm.query(x.key);        //System.out.println("Testing query after put: " + out.data);
       }    } catch (Exception e) {      e.printStackTrace();    }
   }}

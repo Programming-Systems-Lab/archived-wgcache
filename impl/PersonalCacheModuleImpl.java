@@ -41,7 +41,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     this.prop = new Properties();
     this.wgVec = new Vector();
     this.roleName = roleName;    try {
-      this.url = InetAddress.getLocalHost().getHostName()+ roleName;
+      this.url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);      log(url);    }catch (Exception e) {}
         try {
       this.cache = new CacheService(roleName);
@@ -82,7 +82,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
         cache.put(x.key,x.data,x.size);
       }      else {        retVal = cache.put(x.data,x.size);
       }    }else {
-      log("Data or Size fields are Null for");       
+      log("Data or Size fields are Null for genericPut");       
     }    return retVal;
   }  
   public Object put(Cacheable x) {     Object retVal = null;
@@ -104,7 +104,9 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     Cacheable retVal = new Cacheable();
     if(queryData != null) { 
       if(queryData instanceof Cacheable){ 
-        log("Is an instance of Cacheable");        //log("about to blow off");        Object temp = cache.query(((Cacheable)queryData).key);        //log("JUST CHECKING WITHIN THE LOOP");        //log("in the finally wonder if it comes here");        if(temp !=null) {          retVal.data = temp;          retVal.key = ((Cacheable)queryData).key;          retVal.size = ((Cacheable)queryData).size;				        }        else {          log("was null in this pcm");          retVal = null;        }        return retVal;      }      else {        // System.out.println("Not an instance of Cacheable");        Object temp = cache.query(queryData);        if(temp !=null) {          retVal.data = temp;          retVal.key = queryData;        }        else          retVal = null;        return retVal;      }     }    else {      log("queryData provided is null");    }    return retVal;
+        log("Is an instance of Cacheable");        //log("about to blow off");        Object temp = cache.query(((Cacheable)queryData).key);        //log("JUST CHECKING WITHIN THE LOOP");        //log("in the finally wonder if it comes here");        if(temp !=null) {          retVal.data = temp;          retVal.key = ((Cacheable)queryData).key;          retVal.size = ((Cacheable)queryData).size;				
+          log("query on Cacheable data: " + retVal);        }        else {          log("was null in this pcm");          retVal = null;        }        return retVal;      }      else {        // System.out.println("Not an instance of Cacheable");        Object temp = cache.query(queryData);        if(temp !=null) {          retVal.data = temp;          retVal.key = queryData;
+          retVal.size = queryData.toString().length();        }        else          retVal = null;        return retVal;      }     }    else {      log("queryData provided is null");    }    return retVal;
  }
 
   public void pushToWorkgroup(Cacheable toBePushed){		

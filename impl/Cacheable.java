@@ -12,6 +12,8 @@ public class Cacheable implements java.io.Serializable {
   public Cacheable(Object k,Object d,long s){     this.key = k;
     this.data = d;
     this.size = s;
-  }    public Object key;  public Object data;
+  }  
+  public String toString() {    return "Cacheable: (" + key + ", " + data + ", " + size + ") ";
+  }  public Object key;  public Object data;
   public long size;
 }

@@ -46,7 +46,7 @@ public class CacheService implements CacheManager,java.io.Serializable  {
     Object result = db.get(queryTag);    if(result == null) {      System.out.println(serviceName + ":query(MISS)\" " + queryTag);
 			//throw new WGCException("MISS");
 		}else 
-			System.out.println(serviceName + " :query(HIT)\" " + queryTag + "\" : " + result);
+      System.out.println(serviceName + ": query(HIT) \"" + queryTag + "\" --- " + result);
 		return result;   }
   
   public boolean full(long newSize) {
