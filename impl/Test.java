@@ -42,7 +42,7 @@ import psl.wgcache.impl.manager.*;
     //pcm1.printAllWorkgroupNames();    pcm2.printAllWorkgroupNames();        pcm2.printJoinedWorkgroupNames();    try {
       if(pcm2 !=null) {
         //Cacheable result = pcm1.query(x);  
-        Cacheable result = pcm2.pullFrom(new RequestTrace(),x);  
+        Cacheable result = pcm2.pullFrom(x);  
         //pcm1.pushToWorkgroup(x);        //Cacheable result = pcm2.query(x);        //Cacheable result = null;        if(result !=null)
           System.out.println("RESULT: "+ result.data);        else           System.out.println("RESULT IS NULL");      }    }catch (Exception w) {      w.printStackTrace();      System.out.println("Miss");
     }

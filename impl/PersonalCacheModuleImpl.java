@@ -28,14 +28,11 @@ import java.rmi.server.*;import java.net.*;
 public class PersonalCacheModuleImpl implements PersonalCacheModule {
   protected Criteria crit;
   protected Vector wgVec;
-  protected CacheService cache = null;
-  private String roleName;
-  private static WorkGroupManager wgm;
-  //private static Manager manager = null; 
+  protected CacheService cache = null;  private String roleName;
+  private static WorkGroupManager wgm;  
   private String filename;  
   private Properties prop; 
   private String url;
-  //private Workgroup wg = null;  
   private String wgName = null;    /**
    * Constructs a new Cache Module with the specified roleName.
    */      
@@ -43,10 +40,9 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     this.filename = "WorkgroupServer.conf";  //hardcoded bad needs to be passed as an argument....
     this.prop = new Properties();
     this.wgVec = new Vector();
-    this.roleName = roleName;
-    try {
+    this.roleName = roleName;    try {
       this.url = InetAddress.getLocalHost().getHostName()+ "/"+ roleName;
-      RMI_PCMimpl rpcmi = new RMI_PCMimpl(this);      log(url);    }catch (Exception e) {}
+      RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);      log(url);    }catch (Exception e) {}
         try {
       this.cache = new CacheService(roleName);
     }catch(Exception e){ 
@@ -80,20 +76,21 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
    * 
    */  
   
-  public Object put(Cacheable x) { 
-    Object retVal = null;
+  public Object genericPut(Cacheable x) {    Object retVal = null;
     if ((x.data != null) && (x.size > 0 )) {
-      if (x.key != null)
+      if (x.key != null) {        retVal = x.key;
         cache.put(x.key,x.data,x.size);
-      else {
-         retVal = cache.put(x.data,x.size);
-      }
-    }else {
-      log("Data or Size fields are Null for");  
-      // checks if the data and size parameters fro the Cacheable are null and break
-    }
-    return retVal;
+      }      else {        retVal = cache.put(x.data,x.size);
+      }    }else {
+      log("Data or Size fields are Null for");       
+    }    return retVal;
+  }  
+  public Object put(Cacheable x) {     Object retVal = null;
+    retVal = genericPut(x);    try {      wgm.accessNotify(roleName, x);    }    catch (Exception e) {
+      System.out.println("ERROR: Server connection problem in accesNotify");      e.printStackTrace();         }    return retVal;
   }
+      // checks if the data and size parameters fro the Cacheable are null and break
+   
   /**
    * Tests if the specified object is present in the Cache.
    * 
@@ -107,46 +104,13 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
     Cacheable retVal = new Cacheable();
     if(queryData != null) { 
       if(queryData instanceof Cacheable){ 
-        log("Is an instance of Cacheable");
-	//log("about to blow off");
-	Object temp = cache.query(((Cacheable)queryData).key);
-	//log("JUST CHECKING WITHIN THE LOOP");
-	//log("in the finally wonder if it comes here");
-	if(temp !=null) {
-	  retVal.data = temp;
-	  retVal.key = ((Cacheable)queryData).key;
-          retVal.size = ((Cacheable)queryData).size;				
-	}
-	else {
-          log("was null in this pcm");
-	  retVal = null;
-	}
-        return retVal;
-   }
-   else {
-    System.out.println("Not an instance of Cacheable");
-    Object temp = cache.query(queryData);
-    System.out.println("just checking");
-    log("JUST CHECKING WITHIN THE LOOP");
-    if(temp !=null) {
-      retVal.data = temp;
-      retVal.key = queryData;
-    }
-    else
-      retVal = null;
-    return retVal;
-   } 
-   }
-  else {
-    log("queryData provided is null");
-  }
-  return retVal;
+        log("Is an instance of Cacheable");        //log("about to blow off");        Object temp = cache.query(((Cacheable)queryData).key);        //log("JUST CHECKING WITHIN THE LOOP");        //log("in the finally wonder if it comes here");        if(temp !=null) {          retVal.data = temp;          retVal.key = ((Cacheable)queryData).key;          retVal.size = ((Cacheable)queryData).size;				        }        else {          log("was null in this pcm");          retVal = null;        }        return retVal;      }      else {        System.out.println("Not an instance of Cacheable");        Object temp = cache.query(queryData);        System.out.println("just checking");        log("JUST CHECKING WITHIN THE LOOP");        if(temp !=null) {          retVal.data = temp;          retVal.key = queryData;        }        else          retVal = null;        return retVal;      }     }    else {      log("queryData provided is null");    }    return retVal;
  }
 
   public void pushToWorkgroup(Cacheable toBePushed){		
     for(int i = 0; i < wgVec.size(); i++) {
       String wgName = (String)wgVec.elementAt(i);
-      log("THE workgroup being pushed to is :" + wgName);      try {        wgm.pushTo(new RequestTrace(),toBePushed,wgName);      }catch (Exception e) {
+      log("THE workgroup being pushed to is :" + wgName);      try {                wgm.pushToWorkGroup(roleName,toBePushed,wgName);      }catch (Exception e) {
         System.out.println("ERROR: Server connection problem in pushToWorkgroup");        e.printStackTrace();      }
     }
   }
@@ -160,9 +124,8 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
    * 
    */
 
-  public Cacheable pullFrom(RequestTrace trace, Object queryData) {
+  public Cacheable pullFrom(Object queryData) {
     Cacheable result = null;
-    trace.addHop(roleName);
    // 1. check cache
     try {
       result = this.query(queryData);
@@ -172,15 +135,13 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
         // we found it in our cache, but we still need to notify our
         // workgroups that we accessed the document       
         for(int i = 0; i < wgVec.size(); i++) {
-          wgName = (String)wgVec.elementAt(i);             try {            wgm.accessNotify(trace, queryData, wgName);          }          catch (Exception e) {            System.out.println("ERROR: Server connection problem in pullFrom");
-            e.printStackTrace();          }
-        }
+          wgName = (String)wgVec.elementAt(i);           }
       } else {
         //System.out.println("pulling from the workgroup");        // 2. pull from shared cache         
         int i;        log("Number of workgroups joined are:" + wgVec.size());
         for(i = 0; i < wgVec.size(); i++) {
           wgName = (String)wgVec.elementAt(i); 
-          log("Workgroup name in the for loop:" + wgName);          try {            result = wgm.pullFrom(trace, queryData, wgName);          } catch (Exception e) {
+          log("Workgroup name in the for loop:" + wgName);          try {            result = wgm.pullFrom(queryData, wgName);          } catch (Exception e) {
             System.out.println("ERROR: Server connection problem in pullFrom");
             e.printStackTrace();          }          if(result != null) {            log("got \"" + queryData + "\" from workgroup " + wgName);
             break;
@@ -190,9 +151,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
          // first one queried
          for(i++; i < wgVec.size(); i++) {
            wgName = (String)wgVec.elementAt(i);
-           try {             wgm.accessNotify(trace, queryData, wgName);           }           catch (Exception e) {
-            System.out.println("ERROR: Server connection problem in pullFrom");
-            e.printStackTrace();          }         }      }      if(result == null) {        // we could get from outside here, say other oracle or an oracle serverbut we'll just assume that if        // the shared cache couldn't find it, we won't either      }      return result;    }  }   
+         }      }      if(result == null) {        // we could get from outside here, say other oracle or an oracle serverbut we'll just assume that if        // the shared cache couldn't find it, we won't either      }      return result;    }  }   
   /**
    * Method to implement the shared cache.
    * This method is called when the criteria is applied.
@@ -214,9 +173,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
       System.out.println(names[j]);
     }
   }  
-
-  public void pushTo(RequestTrace trace, Cacheable x) {
-    if(trace.getLastHop() != null){      if((!trace.getLastHop().equals(roleName))&&(x.key != null)) {        trace.addHop(roleName);        cache.put(x.key,x.data,x.size);      }    }    else {      trace.addHop(roleName);      cache.put(x.key,x.data,x.size);    }  }  
+ 
   /**
    * Prints the workgroups to which the module is subscribed.
    *

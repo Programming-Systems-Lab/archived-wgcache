@@ -17,10 +17,10 @@ package psl.wgcache.impl.manager;/** Copyright (c) 2000: The Trustees of Colum
  */
 
 /***********************************************************
- * wg.pullFrom(trace,queryData);
+ * wg.pullFrom(queryData);
  * wg.removeMember(url);
- * wg.pushTo(trace, toBePushed);
- * wg.accessNotify(trace,data);
+ * wg.pushTo(toBePushed);
+ * wg.accessNotify(data);
  * wg.addMember(url);
  * wg.removeAll();
  ************************************************************/
@@ -36,27 +36,18 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
   protected Hashtable memberVec; // Vector of PersonalCacheModules
   private String name;
   private static WorkGroupManager manager;
-  private Criteria crit;
-  private History hist;  private String workgpMemURL;  private RMI_PCM memPCM;
+  private String workgpMemURL;  private RMI_PCM memPCM;
  
   public WorkgroupImpl(String name, WorkGroupManager manager)  {
     super();
     this.name = name;
     this.manager = manager;
     this.memberVec = new Hashtable();
-    this.crit = new NopCriteria();
-    this.hist = new History();
   }    
-  public Cacheable pullFrom(RequestTrace trace, Object cname)  {
-		log("Workgroup name is:" + name);
+  public Cacheable pullFrom(Object cname)  {	  log("Workgroup name is:" + name);
 		if(cname != null) { 
-      if(cname instanceof Cacheable){ 
-			//log("Is an instance of Cacheable in the workgroup");
-				log("received a pullFrom request for \"" + ((Cacheable)cname).key + "\"");
-			}else
-				log("received a pullFrom request for \"" + cname + "\"");
-			hist.addAccess(cname);
-		}
+      if(cname instanceof Cacheable){ 		  //log("Is an instance of Cacheable in the workgroup");		  log("received a pullFrom request for \"" + ((Cacheable)cname).key + "\"");	  } else
+		  log("received a pullFrom request for \"" + cname + "\"");		}
     //1. check with all the members of the workgroup.
 		log("Size of the workgroup is:"+ memberVec.size());
 		Cacheable result = null;
@@ -86,8 +77,8 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 				   }
 				}
 				// Apply criteria
-				CriteriaInfo critInfo = new CriteriaInfoImpl(this, result, trace,CriteriaInfo.VIA_PULL, hist);
-				crit.apply(critInfo);	
+				//CriteriaInfo critInfo = new CriteriaInfoImpl(this, result, trace,CriteriaInfo.VIA_PULL, hist);
+				//crit.apply(critInfo);	
 			}
 		}
 		if (result == null)
@@ -96,16 +87,41 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 		return result;
 	}
 	
-  public void pushTo(RequestTrace trace, Cacheable x)  {
-    log("received a pushed object: \"" + x.key + "\"");
-    hist.addAccess(x.key);
-    // Apply criteria
-		Workgroup wg;
-		for(int i = 0; i < this.memberVec.size(); i++){
-			CriteriaInfo critInfo = new CriteriaInfoImpl(this, x,trace,CriteriaInfo.VIA_PUSH, hist);
-			crit.apply(critInfo);
-		}
-  }  
+  public void pushToWorkgroup(String memDataSrc, Cacheable x)  {    Cacheable toBePushed = null;
+    log("received a pushed object: \"" + x.key + "\"");    				    if(memberVec.size() > 0){
+      String srcUrl = (String)memberVec.get(memDataSrc);
+      try {        memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        toBePushed = memPCM.query(x.key);
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+      if(toBePushed ==null)        return;
+      
+      for(Enumeration e = memberVec.keys(); e.hasMoreElements();) {        
+        String currKey = (String)e.nextElement();
+        if(currKey.equalsIgnoreCase(memDataSrc))
+          continue;
+                workgpMemURL = "rmi://"+ ((String) memberVec.get(currKey));
+        log("Member URL :" +workgpMemURL);
+        try {          memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);
+          memPCM.WGCPut(toBePushed);        }        catch (Exception ex) {          System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
+          ex.printStackTrace();        }      }      }  }    public boolean containsMember(String pcmName){
+    return(this.memberVec.contains(pcmName));    }
+  
+  public void pushToMember (String memDataSrc, Cacheable x, String targetMember) {
+    Cacheable toBePushed = null;
+    log("received a pushed object: \"" + x.key + "\"");    	
+    if(memberVec.size() > 0){
+      String srcUrl = (String)memberVec.get(memDataSrc);
+      try {        memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);        toBePushed = memPCM.query(x.key);
+      }      catch (Exception ex) {        System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
+        ex.printStackTrace();      }      
+      if(toBePushed ==null)        return;
+      
+      workgpMemURL = "rmi://"+ ((String) memberVec.get(targetMember));
+      log("Member URL :" +workgpMemURL);
+      try {        memPCM = (RMI_PCM) Naming.lookup(workgpMemURL);
+        memPCM.WGCPut(toBePushed);      }      catch (Exception ex) {        System.out.println("ERROR: Server connection problem in pushToWorkgroup to: " + workgpMemURL);
+        ex.printStackTrace();      }    }  }
     public boolean compareTo (Workgroup fromClient) {
     if(fromClient == null) {
       if (this.memberVec.size() == 0)
@@ -146,24 +162,24 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
   }*/
 
   public Criteria getCriteria()  {
-    return crit;
+  //  return crit;    return null;
   }  public int numMembers() {    return this.memberVec.size();  }
 
   public void setCriteria(Criteria crit)  {
-    this.crit = crit;
+    //this.crit = crit;
     log("Setting new cache criteria");
   }
   
   protected void log(String mesg)  {
     System.out.println("PCM " + getName() + ": " + mesg);
   }
-
+  /*
   public void accessNotify(RequestTrace trace,Object name) {
     log("notified of access of \\"+ name + "\\ by " + trace.getLastHop());  
     hist.addAccess(name);
     CriteriaInfoImpl critInfo = new CriteriaInfoImpl(this,new Cacheable(),trace,CriteriaInfo.VIA_UNKNOWN,hist);
     crit.apply(critInfo);
-  }
+  }  */  
   protected void finalize()  {
    removeAll();
   }
