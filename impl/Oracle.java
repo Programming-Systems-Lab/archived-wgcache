@@ -12,9 +12,10 @@ class Oracle implements Runnable, Notifiable {
     try {
       h.setMaster(master);
       System.out.println(me + ": master is " + master);
-    } catch (siena.InvalidHandlerException ihe) {
+    } catch (siena.InvalidSenderException ihe) {
       ihe.printStackTrace();
-    } catch (IOException ioe) {
+    }
+  catch (IOException ioe) {
       ioe.printStackTrace();
     }
     Oracle m = new Oracle(h);

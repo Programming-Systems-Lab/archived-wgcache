@@ -32,7 +32,8 @@ public class WGCacheSienaInterface implements Runnable, Notifiable {  Siena si 
     }catch(Exception e){
       System.out.println("Could not create a cache");    }    
   }
-  public static void main(String[] args){     String master = "senp://localhost:3137";    if (args.length > 0) {      master = args[0];    }    HierarchicalDispatcher hd = new HierarchicalDispatcher();    try {      hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }    catch(siena.InvalidHandlerException e) {      e.printStackTrace();    } catch(IOException ex) {      ex.printStackTrace();    }    WGCacheSienaInterface wgsi = new WGCacheSienaInterface(hd);    Thread t = new Thread(wgsi);    t.start();  }  
+  public static void main(String[] args){     String master = "senp://localhost:3137";    if (args.length > 0) {      master = args[0];    }    HierarchicalDispatcher hd = new HierarchicalDispatcher();    try {      hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }    catch(siena.InvalidSenderException e) {      e.printStackTrace();    } 
+  catch(IOException ex) {      ex.printStackTrace();    }    WGCacheSienaInterface wgsi = new WGCacheSienaInterface(hd);    Thread t = new Thread(wgsi);    t.start();  }  
   public void run() {
     Filter f = new Filter();    f.addConstraint("source", "psl.oracle.OracleSienaInterface");    f.addConstraint("type", "get");    try {      si.subscribe(f, this);    }catch(siena.SienaException se) {      se.printStackTrace();    }    System.out.println("WGCache subscribed to " + f);    
     f.clear();

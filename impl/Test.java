@@ -16,14 +16,16 @@ import psl.wgcache.impl.manager.*;
    public static void main(String[] args) {
      String data = "TESTING DATA 1";
      Cacheable x = new Cacheable("TAG1",data,data.length());
-     PersonalCacheModuleImpl pcm1 = new PersonalCacheModuleImpl("OracleTest");     PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("ParserTest");
+     PersonalCacheModuleImpl pcm1 = new PersonalCacheModuleImpl("OracleTest");
+     PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("ParserTest");
      try {
        pcm1.createWorkgroup("Oracle-Parser");
        System.out.println("JOINED Oracle-Parser");
      }catch (WGCException w){}
      if(pcm1!=null) {
        pcm1.put(x);       
-     }     try {
+     } 
+     try {
        pcm2.createWorkgroup("Parser");
        System.out.println("JOINED Parser");
      }catch (WGCException w){}
@@ -35,8 +37,13 @@ import psl.wgcache.impl.manager.*;
       }
      try {
        if(pcm2!=null) {
-       Cacheable result = pcm2.query(x);  
-       System.out.println("RESULT: "+ result.data);       }     }catch (WGCException w) {       System.out.println("Miss");
-     }           //pcm1.printJoinedWorkgroupNames();      //pcm2.printJoinedWorkgroupNames();
+       Cacheable result = pcm2.pullFrom(new RequestTrace(),x);  
+       System.out.println("RESULT: "+ result.data);
+       }
+     }catch (Exception w) {
+       System.out.println("Miss");
+     }
+      //pcm1.printJoinedWorkgroupNames();
+      //pcm2.printJoinedWorkgroupNames();
   }
 }
