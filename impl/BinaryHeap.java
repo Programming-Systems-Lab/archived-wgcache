@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * Implements a binary heap.
  * Note that all "matching" is based on the compareTo method.
- * @author Alpa The Great
+ * @author Alpa 
 */
 public class BinaryHeap {
    /**

@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * Implements a key-weight pair.
- * @author Alpa The Great
+ * @author Alpa 
 */
 public class KeyWeightPair implements Comparable {
   public KeyWeightPair() {}
