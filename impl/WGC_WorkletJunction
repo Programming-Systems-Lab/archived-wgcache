@@ -1,25 +1,0 @@
-import psl.worklets2.worklets.WorkletJunction;
-import psl.worklets2.wvm.WVM;
-import psl.wgcache.roles.CacheManager;
-
-class WGC_WorkletJunction extends WorkletJunction {
-
-  CacheManager myTarget;  private String key;
-  private String data;
-  private long size;            
-
-  WGC_WorkletJunction(String remoteHost, String remoteName,String key, String data, long size) {
-    super(remoteHost, remoteName);    this.key = key;
-    this.data = data;    this.size = size;  }
-
-  public void init(Object _target, WVM _wvm) {    System.out.println("Reached target");
-    super.init(_target, _wvm);
-    myTarget = (CacheManager) _target;
-  }
-
-  public void execute() {
-    myTarget.put(key,data,size);    System.out.println("finished execution");
-    
-  }
-
-} 

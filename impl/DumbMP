@@ -1,3 +1,0 @@
-package psl.wgcache.impl;
-import psl.worklets2.worklets.*;public class DumbMP {  public static void main(String[] args) throws Exception {    CacheService cs = new CacheService(args[0],args[1]);    cs.sendWorkletTo(args[2],args[3]);
-  }}
