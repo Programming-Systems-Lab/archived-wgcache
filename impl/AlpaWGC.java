@@ -31,5 +31,5 @@ import psl.wgcache.impl.manager.*;
         Cacheable x = new Cacheable("cool WGC website", data, data.length());
          Object result = pcm.put(x); 
          //pcm.pushToWorkgroup(x);        // Cacheable out = pcm.query(x.key);        // System.out.println("Testing query after put: " + out.data);
-      }    } catch (Exception e) {      e.printStackTrace();    }    
+      }    } catch (Exception e) {      e.printStackTrace();    }    
   }}
