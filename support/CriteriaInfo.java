@@ -18,7 +18,7 @@ public interface CriteriaInfo
 
   public Cacheable getCacheable();    // the object to be cached
   public int       getReceivedVia();  // how the Cacheable was received
-  public History   getHistory();
+  public History   getHistory();	public Module    getToBePushed();
   public Module    getReceivedBy();   // the Module using the criteria
   public String    getReceivedFrom(); // where this Cacheable came from
   public String    getRequester();    // the user this came from

@@ -74,20 +74,50 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
     Cacheable retVal = new Cacheable();
     if(queryTag != null) { 
       if(queryTag instanceof Cacheable){ 
-        retVal.data = cache.query(((Cacheable)queryTag).key);
-        retVal.key = ((Cacheable)queryTag).key;
-        retVal.size = ((Cacheable)queryTag).size;
-      }
-      else {
-        retVal.data = cache.query(queryTag);
-        retVal.key = queryTag;
-        System.out.println("Not an instance of Cacheable");
-      }
-    }else {
+        System.out.println("Is an instance of Cacheable");
+				log("about to blow off");
+	   		Object temp = cache.query(((Cacheable)queryTag).key);
+				log("JUST CHECKING WITHIN THE LOOP");
+				log("in the finally wonder if it comes here");
+				if(temp !=null) {
+				  retVal.data = temp;
+					retVal.key = ((Cacheable)queryTag).key;
+					retVal.size = ((Cacheable)queryTag).size;				
+				}
+				else {
+					log("was null in this pcm");
+					retVal = null;
+				}
+				return retVal;
+			}
+			else {
+				System.out.println("Not an instance of Cacheable");
+				Object temp = cache.query(queryTag);
+				System.out.println("just checking");
+				log("JUST CHECKING WITHIN THE LOOP");
+				if(temp !=null) {
+					retVal.data = temp;
+					retVal.key = queryTag;
+				}
+				else
+					retVal = null;
+				return retVal;
+			}
+		}
+		else {
       log("QueryTag provided is null");
     }
     return retVal;
   }
+	public void pushToWorkgroup(Cacheable toBePushed){
+		Workgroup wg;
+		for(int i = 0; i < wgVec.size(); i++) {
+			wg = (Workgroup)wgVec.elementAt(i);
+			log("THE workgroup being pushed to is :" + wg.getName());
+			wg.pushTo(new RequestTrace(),toBePushed);
+		}
+	}
+		
   /**
    * Method to implement the shared cache.
    * This method is called when the criteria is applied.
@@ -97,12 +127,11 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * 
    */
   public Cacheable pullFrom(RequestTrace trace, Object queryTag) {
-    Cacheable result = new Cacheable();
+    Cacheable result = null;
     trace.addHop(roleName);
-   
-    // 1. check cache
+   // 1. check cache
     try {
-      result = query(queryTag);
+      result = this.query(queryTag);
     }catch (WGCException w) {}
      finally {
        if(result!= null) {
@@ -115,11 +144,14 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
            wg.accessNotify(trace, queryTag);
          }
        } else {
+				 //System.out.println("pulling from the workgroup");
          // 2. pull from shared cache
          Workgroup wg;
          int i;
+				 log("Number of workgroups joined are:" + wgVec.size());
          for(i = 0; i < wgVec.size(); i++) {
            wg = (Workgroup)wgVec.elementAt(i);
+					 log("Workgroup name in the for loop:" + wg.getName());
            result = wg.pullFrom(trace, queryTag);
            if(result != null) {
              log("got \"" + queryTag + "\" from workgroup " + wg.getName());
@@ -160,10 +192,16 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   }
   
   public void pushTo(RequestTrace trace, Cacheable x)  {
-    if((!trace.getLastHop().equals(roleName))&&(x.key != null)) {
-      trace.addHop(roleName);
-      cache.put(x.key,x.data,x.size);
-    }
+		if(trace.getLastHop() != null){
+			if((!trace.getLastHop().equals(roleName))&&(x.key != null)) {
+				trace.addHop(roleName);
+				cache.put(x.key,x.data,x.size);
+			}
+		}
+		else {
+			trace.addHop(roleName);
+			cache.put(x.key,x.data,x.size);
+		}
   }
   
   /**
@@ -186,6 +224,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   public void createWorkgroup(String wgName) throws WGCException  {
     wgm = manager.getManager();
     Workgroup wg = wgm.newWorkgroup(wgName);
+		wg.addMember(this);
     wgVec.addElement(wg);    
   }
   
@@ -202,6 +241,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
       throw new NoSuchModuleException("No such workgroup");
     joinWorkgroup(wg);
   }
+	
   protected void joinWorkgroup(Workgroup wg)  {
     wg.addMember(this);
     wgVec.addElement(wg);

@@ -15,8 +15,8 @@ public class CacheService implements CacheManager {
   public long currSize;
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
-  public DBInterface db;  
-  //Hashtable db;
+  //public DBInterface db;  
+  public HashtableDBInterface db;
 
   public CacheService(String name) throws Exception {
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -26,10 +26,14 @@ public class CacheService implements CacheManager {
     System.runFinalization(); 
     currSize = 0;
     //db = new Hashtable();
-    db = new  DBInterface(name);
-    //db = new HashtableDBInterface(name);
+    //db = new  DBInterface(name);
+    db = new HashtableDBInterface(name);
   }
-  public Object query(Object queryTag)throws WGCException {    //need to change this to     Object resultDTD = db.get(queryTag);    if(resultDTD == null) {      System.out.println(serviceName + ":query(MISS)\" " + queryTag + "\" : " + resultDTD);      throw new WGCException("MISS");    }    System.out.println(serviceName + " :query(HIT)\" " + queryTag + "\" : " + resultDTD);    return resultDTD;   }
+  public Object query(Object queryTag)throws WGCException {    //need to change this to     Object result = db.get(queryTag);    if(result == null) {      System.out.println(serviceName + ":query(MISS)\" " + queryTag);
+			//throw new WGCException("MISS");
+		}else 
+			System.out.println(serviceName + " :query(HIT)\" " + queryTag + "\" : " + result);
+		return result;   }
   
   public boolean full(long newSize) {
    // System.out.println(" THE SIZE IS ==> " + currSize);      

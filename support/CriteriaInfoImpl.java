@@ -12,8 +12,9 @@ public class CriteriaInfoImpl  implements CriteriaInfo {
   protected RequestTrace trace = null;
   protected int receivedVia = VIA_UNKNOWN;
   protected History hist = null;
+	protected Module toBePushedModule;
 
-  public CriteriaInfoImpl(Module receiver, Cacheable cacheable,
+  public CriteriaInfoImpl(Module receiver, Cacheable cacheable, 
 			  RequestTrace trace, int receivedVia, History hist)
   {
     this.receiver = receiver;
@@ -63,6 +64,8 @@ public class CriteriaInfoImpl  implements CriteriaInfo {
     }
     return retval;
   }
+	public Module getToBePushed() {		return toBePushedModule;	}
+
 
   public Module[] getWorkgroups()  {
     Module[] retval = null;
@@ -75,9 +78,10 @@ public class CriteriaInfoImpl  implements CriteriaInfo {
   }
 
   public void push(Cacheable x, Module m)  {
-     // Don't push it back to where it came from
-      if(!m.getName().equals(receivedFromMod))
-	m.pushTo(trace, x);
+    // Don't push it back to where it came from
+		log("In the push while applying criteria with module name :" + m.getName() + "and the recieved from module :" + receiver);
+		if(!m.getName().equals(receiver))
+			m.pushTo(trace, x);
   }
 
   public Cacheable pull(String name, Module m)    throws WGCException  {
@@ -85,5 +89,8 @@ public class CriteriaInfoImpl  implements CriteriaInfo {
     result = m.pullFrom(trace, name);
     return result;
   }
+	private void log(String mesg){
+		System.out.println("CriteriaInfoImpl :"+ mesg);
+	}
 }
 
