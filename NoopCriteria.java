@@ -1,4 +1,5 @@
 package psl.wgcache;
+import java.io.*;
 
 public class NoopCriteria  implements Criteria, Serializable {
   public void apply(CriteriaInfo info) {

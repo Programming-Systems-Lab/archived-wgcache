@@ -1,4 +1,6 @@
 package psl.wgcache;
+import java.io.*;
+import java.util.Properties;
 
 /** Copyright (c) 2000: The Trustees of Columbia University and the City of New York.
  * All Rights Reserved.
@@ -46,7 +48,7 @@ public class WGCSienaInterface implements Runnable, Notifiable {
     }
     Thread t = new Thread(this); 
     t.start();
-    System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
+    System.out.println("WGCSienaRuleEngineImpl subscribed to " + master); 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         hd.shutdown();
