@@ -14,7 +14,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Label;
-import java.awt.Panel;import java.awt.ScrollPane;
+import java.awt.Panel;
+import java.awt.ScrollPane;
 import java.awt.TextArea;
 import java.awt.TextField;
 
@@ -24,7 +25,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JTabbedPane;
+
+import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
 import java.util.Hashtable;
@@ -33,8 +35,10 @@ import psl.wgcache.Cacheable;
 import psl.wgcache.PersonalCacheModuleImpl;
 import psl.wgcache.WGCException;
 
-public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 600;
-  private static final int MAX_HEIGHT = 300;  private static final int NUM_ENTRIES = 10;
+public class WGC_Manager_Visual {
+  private static final int MAX_WIDTH = 600;
+  private static final int MAX_HEIGHT = 300;
+  private static final int NUM_ENTRIES = 10;
   // private AWT variables
   private Frame _frame = null;
   private Panel _panel = null;
@@ -133,24 +137,33 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 600;
 
     // Main panel settings /////////////////////////////
     _midPanel = new Panel(new GridLayout(1, 2, 5, 25));
-        _midPanel1 = new Panel(new BorderLayout());
+    
+    _midPanel1 = new Panel(new BorderLayout());
     _midPanel1.add(_midLabel1 = new Label("Push rules [Instigator-Target]", Label.CENTER), BorderLayout.NORTH);
     _midLabel1.setFont(_smallFont);
     _midLabel1.setForeground(_textColour);
-    _midPanel1.add(_midPanel1Scp = new ScrollPane(), BorderLayout.CENTER);    _midPanel1Scp.add(_midPanel1_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
+    _midPanel1.add(_midPanel1Scp = new ScrollPane(), BorderLayout.CENTER);
+    _midPanel1Scp.add(_midPanel1_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
     // _midPanel1.add(_midPanel1_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)), BorderLayout.CENTER);
-        _midPanel2 = new Panel(new BorderLayout());    _midPanel2.add(_midLabel2 = new Label("Workgroups", Label.CENTER), BorderLayout.NORTH);
+    
+    _midPanel2 = new Panel(new BorderLayout());
+    _midPanel2.add(_midLabel2 = new Label("Workgroups", Label.CENTER), BorderLayout.NORTH);
     _midLabel2.setFont(_smallFont);
-    _midLabel2.setForeground(_textColour);    _midPanel2.add(_midPanel2Scp = new ScrollPane(), BorderLayout.CENTER);    _midPanel2Scp.add(_midPanel2_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
-        _midPanel3 = new Panel(new BorderLayout());
+    _midLabel2.setForeground(_textColour);
+    _midPanel2.add(_midPanel2Scp = new ScrollPane(), BorderLayout.CENTER);
+    _midPanel2Scp.add(_midPanel2_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
+    
+    _midPanel3 = new Panel(new BorderLayout());
     _midPanel3.add(_midLabel3 = new Label("WG members", Label.CENTER), BorderLayout.NORTH);
     _midLabel3.setFont(_smallFont);
     _midLabel3.setForeground(_textColour);
     _midPanel3.add(_midPanel3Scp = new ScrollPane(), BorderLayout.CENTER);
     _midPanel3Scp.add(_midPanel3_1 = new Panel(new CardLayout()));
-    _midPanel3_1.add(new Panel(new GridLayout(NUM_ENTRIES, 1)), "TOP");    // _midPanel3Scp.add(_midPanel3_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
+    _midPanel3_1.add(new Panel(new GridLayout(NUM_ENTRIES, 1)), "TOP");
+    // _midPanel3Scp.add(_midPanel3_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)));
     // _midPanel3.add(_midPanel3_1 = new Panel(new GridLayout(NUM_ENTRIES, 1)), BorderLayout.CENTER);
-        _midPanel.add(_midPanel1);
+    
+    _midPanel.add(_midPanel1);
     _midPanel.add(_midPanel2);
     _midPanel.add(_midPanel3);
     _panel.add(_midPanel, BorderLayout.CENTER);
@@ -360,9 +373,9 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 600;
   void workgroupAdded(String wgName) {
     if (wgName.equals("")) return;
     
-    Panel wgPanel = new Panel(new GridLayout(NUM_ENTRIES, 1));    _midPanel3_1.add(wgPanel, wgName);
-    wgMembersPanelHash.put(wgName, wgPanel);
-    Panel p = new Panel(new GridLayout(1, 1));
+    Panel wgPanel = new Panel(new GridLayout(NUM_ENTRIES, 1));
+    _midPanel3_1.add(wgPanel, wgName);
+    wgMembersPanelHash.put(wgName, wgPanel);     Panel p = new Panel(new GridLayout(1, 1));
     final TextField tf = new TextField(wgName);
     tf.addMouseListener(new MouseAdapter() {
       public void mouseClicked(MouseEvent me) {
@@ -377,7 +390,9 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 600;
     p.add(tf);
     _midPanel2_1.add(p);
     
-    wgPanel.validate(); _midPanel3Scp.validate(); _midPanel3_1.validate();    p.validate(); _midPanel2Scp.validate(); _midPanel2_1.validate();  }
+    wgPanel.validate(); _midPanel3Scp.validate(); _midPanel3_1.validate();
+    p.validate(); _midPanel2Scp.validate(); _midPanel2_1.validate();
+  }
   
   private final static Color _moduleColour = new Color(129, 158, 193); // mauve
   private final static Color _groupColour = Color.green;
@@ -401,7 +416,8 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 600;
     p.add(new TextField(memberName));
     wgPanel.add(p);
     ((CardLayout) _midPanel3_1.getLayout()).show(_midPanel3_1, wgName);
-    p.validate(); wgPanel.validate(); _midPanel3Scp.validate(); _midPanel3_1.validate();  }
+    p.validate(); wgPanel.validate(); _midPanel3Scp.validate(); _midPanel3_1.validate();
+  }
   
   public static void main(String args[]) {
     WGC_Manager_Visual wgcmv = new WGC_Manager_Visual("WGC_Manager_Visual test");
