@@ -1,4 +1,4 @@
 echo Compiling sources for Workgroup Cache
-
-javac -d %PSLROOT% -classpath .:%PSLROOT%:%PSLROOT%\psl\jars\siena-1.1.2.jar:%PSLROOT%\psl\jars\hsql.jar:%PSLROOT%\psl\jars\xerces.jar %PSLROOT%\psl\kx\KXNotification.java %PSLROOT%\psl\wgcache\*.java %PSLROOT%\psl\xues\*.java
-rmic -d %PSLROOT% -classpath %PSLROOT% psl.wgcache.WorkgroupManagerImpl psl.wgcache.RMI_PCMImpl
+cd\pslcvs
+javac -classpath .;c:\pslcvs;c:\pslcvs\jars\siena-1.1.2.jar;c:\pslcvs\jars\hsql.jar;c:\pslcvs\psl\jars\xerces.jar;c:\pslcvs\psl\kx\KXNotification.java;c:\pslcvs\psl\wgcache\*.java;c:\pslcvs\psl\xues\*.java
+rmic psl.wgcache.WorkgroupManagerImpl psl.wgcache.RMI_PCMImpl
