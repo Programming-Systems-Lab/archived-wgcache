@@ -17,7 +17,7 @@ import psl.wgcache.impl.manager.*;
    public static void main(String[] args) {
      String data = "TESTING DATA 1";
      Cacheable x = new Cacheable("TAG1",data,data.length());
-     PersonalCacheModuleImpl pcm1 = new PersonalCacheModuleImpl("Oracle");     PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("Parser");
+     PersonalCacheModuleImpl pcm1 = new PersonalCacheModuleImpl("OracleTest");     PersonalCacheModuleImpl pcm2 = new PersonalCacheModuleImpl("ParserTest");
      try {
        pcm1.createWorkgroup("Oracle-Parser");
        System.out.println("JOINED Oracle-Parser");

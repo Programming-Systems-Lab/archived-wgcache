@@ -24,7 +24,7 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
   public long currSize;
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
-  public HashtableDBInterface db;
+  public DBInterface db;
   //public DBInterface db;
   //Hashtable db;
   
@@ -43,8 +43,8 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
     System.runFinalization(); 
     currSize = 0;
     //db = new Hashtable();
-    //db = new  DBInterface(name);
-    db = new HashtableDBInterface(name);
+    db = new  DBInterface(name);
+    //db = new HashtableDBInterface(name);
   }
     /*public void sendWorkletTo(String targetHost, String targetRole) {
         Worklet w = new Worklet(null);
@@ -54,7 +54,7 @@ public class CacheService implements CacheManager, GroupspaceCallback, Groupspac
         w.addJunction(new WGC_WorkletJunction(targetHost,targetRole,key,data,size));
         w.deployWorklet(myWVM);
   }*/
-    public Object query(Object queryTag)throws WGCException {
+    public Object query(Object queryTag)throws WGCException {      //need to change this to 
     Object resultDTD = db.get(queryTag);
     if(resultDTD == null) {
       gc.Log(serviceName, "query(MISS)\" " + queryTag + "\" : " + resultDTD);
