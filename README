@@ -1,15 +1,23 @@
 Scenario
   - Three Local Caches i.e PersonalCacheModules -- AlpaWGC, GailWGC, PhilWGC.
-  - AlpaWGC : creates a wokgroup PSL-Workgroup
+  - AlpaWGC : creates a new workgroup PSL-Workgroup
+              joins the new workgroup PSL-Workgroup
   - GailWGC : joins the PSL-Workgroup
               creates a new workgroup DASADA-Workgroup
+              joins the new workgroup DASADA-Workgroup
   - PhilWGC : joins the PSL-Workgroup
  
 To start
   - start the workgroup server by executing psl.wgcache.impl.WorkgroupServer
-  - run psl.wgcache.impl.AlpaWGC
-  - run psl.wgcache.impl.GailWGC
-  - run psl.wgcache.impl.PhilWGC
+  - run "java -Djava.security.policy=pcm.policy psl.wgcache.impl.AlpaWGC"
+  - run "java -Djava.security.policy=pcm.policy psl.wgcache.impl.GailWGC"
+  - run "java -Djava.security.policy=pcm.policy psl.wgcache.impl.PhilWGC"
   
-Note the *WGC files read the WorkgroupServer name from the Workgroup.conf file.
-It used RMI default port.
+Note the *WGC files read:
+  - the WorkgroupServer name from file: Workgroup.conf
+  - the security settings from file: pcm.policy
+
+Note the workgroup server reads:
+  - the siena server location from file: .siena_master
+
+All entities use rmiregistry running on the default port.
