@@ -21,5 +21,6 @@ import java.rmi.server.*;
       e.printStackTrace();
     }   }  public Cacheable query(Object queryData) throws WGCException, RemoteException {    return (parent.query(queryData));
   }      public void WGCPut(Cacheable data)throws RemoteException {
+    System.out.println(parent.getName() + ": saved [into personal cache] the data pushed by WGCManager");
     parent.genericPut(data);  }
 }   

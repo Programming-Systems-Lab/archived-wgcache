@@ -20,33 +20,32 @@ import siena.*;
 public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngine {  Siena si = null;  WorkgroupManagerImpl wgm = null;  
   public WGCSienaRuleEngineImpl(WorkgroupManagerImpl wgm) {
     this.wgm = wgm;
-        String master = "senp://canal.psl.columbia.edu:4321";    HierarchicalDispatcher hd = new HierarchicalDispatcher();     try {       hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }     catch(siena.InvalidSenderException e) {      e.printStackTrace();     } 
+        String master = "senp://canal.psl.cs.columbia.edu:4321";    HierarchicalDispatcher hd = new HierarchicalDispatcher(); 
+    si = hd;    try { 
+      hd.setReceiver(new TCPPacketReceiver(9156));      hd.setMaster(master);      System.out.println("WgCache Siena master is " + master);    }     catch(siena.InvalidSenderException e) {      e.printStackTrace();     } 
     catch(IOException ex) {
       ex.printStackTrace();      }  
-    Thread t = new Thread(new WGCSienaRuleEngineImpl(hd)); 
-    t.start();  }
-    private WGCSienaRuleEngineImpl(Siena si) {
-    this.si = si; 
-  }
-  
-  public void run() {
-    Filter f = new Filter();
-    /* MUST CHANGE HERE */    f.addConstraint("source", "psl.oracle.OracleSienaInterface");     f.addConstraint("type", "get");        /* END MUST CHANGE HERE */    try {      si.subscribe(f, this);     }
+    Thread t = new Thread(this); 
+    t.start();    Filter f = new Filter();
+    f.addConstraint("source", "EventDistiller");     f.addConstraint("type", "FiredRule");    
+    try {      si.subscribe(f, this);     }
     catch(siena.SienaException se) {       se.printStackTrace();    }    catch(Exception e){      e.printStackTrace();
     }        System.out.println("WGCSienaRuleEngineImpl subscribed to " + f); 
-  }    public void what_do_i_do_next(String instigator, Cacheable dataHandle) {
+  }
+    public void run() { }    public void what_do_i_do_next(String instigator, Cacheable dataHandle) {
     try {
       generatePutEvent(instigator, InetAddress.getLocalHost().getHostName(), dataHandle);
-    }catch(Exception e) {
+    } catch(Exception e) {
       e.printStackTrace();
     }  }  
   private void generatePutEvent(String instigator, String hostname, Cacheable dataHandle) {
-    KXNotification kxnotify = new KXNotification();        log("Generating SmartEvent");        Hashtable metaData = new Hashtable();       metaData.put("hostname", hostname);    metaData.put("Instigator", instigator);    metaData.put("DataHandle",(String)dataHandle.key);    
-    Notification  n = EDInputNotification("psl.wgcache.impl.WGCSienaInterface",123455,metaData);
-    try {
-      si.publish(n);
-    }
-    catch(siena.SienaException se) {
+    log("Generating SmartEvent");        Hashtable metaData = new Hashtable();
+    int SrcId = 235323;   
+    metaData.put("type", new siena.AttributeValue("WGCRule"));    metaData.put("hostname", new siena.AttributeValue(hostname));    metaData.put("Instigator", new siena.AttributeValue(instigator));
+    metaData.put("DataHandle", new siena.AttributeValue((String) dataHandle.key));
+        Notification n = KXNotification.EDInputNotification("psl.wgcache.impl.WGCSienaInterface",SrcId,metaData);
+    try {      si.publish(n);
+    } catch(siena.SienaException se) {
       se.printStackTrace();
     } 
   }    public void notify(Notification n) {    Cacheable dataHandle = new Cacheable();

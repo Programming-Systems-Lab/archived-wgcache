@@ -34,13 +34,17 @@ import java.rmi.*;
 import java.rmi.server.*;
 
 public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io.Serializable,WorkGroupManager {
-  protected static Hashtable workgroups = new Hashtable();
-  protected CacheService cache;  
+  private static Hashtable workgroups = new Hashtable();
+  private CacheService cache;  
+  private WGCSienaRuleEngineImpl wgRule;
     
   public WorkgroupManagerImpl() throws RemoteException {   
-   try {
-     cache = new CacheService("WorkGroupManager");
-   }catch(Exception e){e.printStackTrace();}
+    try {
+      cache = new CacheService("WorkGroupManager");
+      wgRule = new WGCSienaRuleEngineImpl(this);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
   }
   
   public void newWorkgroup(String wgName) throws WGCException,RemoteException {
@@ -88,7 +92,6 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
   }
   
   public void accessNotify(String pcmName, Cacheable data) throws RemoteException {
-    WGCSienaRuleEngineImpl wgRule = new WGCSienaRuleEngineImpl(this);
     wgRule.what_do_i_do_next(pcmName,data);
   }
   
