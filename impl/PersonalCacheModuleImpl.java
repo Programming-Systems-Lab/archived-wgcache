@@ -6,6 +6,15 @@ import psl.wgcache.impl.manager.*;
 import psl.wgcache.support.*;
 import java.util.*;
 
+/**
+ * This class is the interface to the WorkgroupCache.
+ * 
+ * It provides methods to put,query the cache and to join,leave,list workgroups.
+ * 
+ * @author  Alpa
+ *  
+ */
+
 public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   protected Criteria crit;
   protected Vector wgVec;
@@ -14,26 +23,35 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   private WorkgroupManagerImpl wgm;
   private Manager manager;
 
+  /**
+   * Constructs a new Cache Module with the specified roleName.
+   */
   public PersonalCacheModuleImpl(String roleName){
-    wgVec = new Vector();
-    this.manager = new Manager();
+    this.wgVec = new Vector();
     this.roleName = roleName;
     try {
-      cache = new CacheService(roleName);
-    }catch(Exception e){}
-    wgm = manager.getManager();
+     this.cache = new CacheService(roleName);
+    }catch(Exception e){
+      System.out.println("CACHE NOT CREATED");    
+    }    
+    this.manager = new Manager();    
   }
   public String getName() {
     return roleName;
   }
-  
-  // Regular cache functions put and get that takes a cacheable object and returns a Cacheable object respectively
-  // put retrurns the hashcode if the data without a key is passed for future reference
+  /**
+   * caches the specified data.
+   * 
+   * @param    Cacheable object to be cached.
+   * 
+   * @return   key for the data cached if not provided, for future references.   
+   * 
+   */  
   
   public Object put(Cacheable x) { 
     Object retVal = null;
     if ((x.data != null) && (x.size > 0 )) {
-      if (x.key == null)
+      if (x.key != null)
         cache.put(x.key,x.data,x.size);
       else {
          retVal = cache.put(x.data,x.size);
@@ -43,6 +61,14 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
     }
     return retVal;
   }
+  /**
+   * Tests if the specified object is present in the Cache.
+   * 
+   * @return      The object if found.
+   * 
+   * @exception   WGCException if not found.
+   * 
+   */
   
   public Cacheable query(Object queryTag)throws WGCException {
     Cacheable retVal = new Cacheable();
@@ -61,9 +87,14 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
     }
     return retVal;
   }
-  // The workgroup and shared cache part starts here
-  // pullFrom, pushTo, and saveHere are needed to implement Module
-  //
+  /**
+   * Method to implement the shared cache.
+   * This method is called when the criteria is applied.
+   * It first checks for the data in it's own cache.
+   * If not found it searchs through the shared cache and then notifies it's workgroups about it.
+   *  
+   * 
+   */
   public Cacheable pullFrom(RequestTrace trace, Object queryTag) {
     Cacheable result = new Cacheable();
     trace.addHop(roleName);
@@ -108,19 +139,45 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
        return result;
      }
   } 
+  /**
+   * Method to implement the shared cache.
+   * This method is called when the criteria is applied.
+   * The specified data is saved by the module.
+   */  
+  
   public void pushTo(RequestTrace trace, Cacheable x)  {
     if((!trace.getLastHop().equals(roleName))&&(x.key != null)) {
       trace.addHop(roleName);
       cache.put(x.key,x.data,x.size);
     }
   }
+  
+  /**
+   * Prints the workgroups to which the module is subscribed.
+   *
+   */
+  public void printWorkgroupNames(){
+    String names[] = wgm.getWorkgroupNames();  
+  }
+  
+  /**
+   * Creates a new Workgroup with the specified name
+   * 
+   * @exception   WGCException if the workgroup already exists.
+   */
   public void createWorkgroup(String wgName) throws WGCException  {
-    // WorkgroupManager wgm = manager.getWorkgroupManager();
+    wgm = manager.getManager();
     wgm.newWorkgroup(wgName);
   }
   
+  /**
+   * Joins the specified workgroup.
+   * 
+   * @exception   if no such workgroup exists.
+   * 
+   */
   public void joinWorkgroup(String wgName) throws WGCException  {
-    // WorkgroupManager wgm = manager.getWorkgroupManager();
+    wgm = manager.getManager();
     Workgroup wg = wgm.getWorkgroup(wgName);
     if(wg == null)
       throw new NoSuchModuleException("No such workgroup");
@@ -130,7 +187,11 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
     wg.addMember(this);
     wgVec.addElement(wg);
   }
-
+  
+  /**
+   * Leaves the specified workgroup. 
+   * 
+   */
   public void leaveWorkgroup(String wgName)  {
     Workgroup wg;
     for(Enumeration e = wgVec.elements();e.hasMoreElements();) {

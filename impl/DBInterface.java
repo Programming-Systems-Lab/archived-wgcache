@@ -7,11 +7,11 @@ import com.odi.util.*;
 
 public class DBInterface {
  /* Name of roots */
-  private static String TABLENAME;
+    private /* bad! static */ String TABLENAME;
   private final static String CLASSNAME   = "DBInterface";
   
     /* Name of database */
-  private static String dbname           = "wgcache.odb";
+  private static String dbname;          
 
   /* Global session context shared by all threads */
   private Session session               = null;
@@ -25,11 +25,13 @@ public class DBInterface {
    */
   public DBInterface(String userTableName) throws Exception {
     TABLENAME = userTableName;
-    //Initializes the UserManagerImpl database session
-    // create a global session to be shared by all threads 
+    dbname = userTableName+".odb";
     if(session == null) {
-      // System.out.println("Creating  new session");
-      session = Session.createGlobal(null, null);
+      //session = Session.createGlobal(null, null);
+      Properties props = System.getProperties();
+      props.put("com.odi.useDatabaseLocking", "false");
+      session = Session.create(null,props);
+      // session = Session.create(null, null);
       session.join();
       Transaction.setDefaultAbortRetain(ObjectStore.RETAIN_HOLLOW);
     }

@@ -47,9 +47,14 @@ public class WorkgroupManagerImpl implements WorkgroupManager {
   public String[] getWorkgroupNames()  {
     String[] names = new String[workgroups.size()];
     int i = 0;
+    int j=0;
 
-    for(Enumeration e = workgroups.elements(); e.hasMoreElements();)
+    for(Enumeration e = workgroups.elements(); e.hasMoreElements();){
       names[i++] = ((Workgroup)e.nextElement()).getName();
+      j = i-1;
+      System.out.println(names[j]);
+    }
+    
     return names;
   }  
   public Cacheable query(Object queryTag)throws WGCException {
