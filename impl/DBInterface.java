@@ -15,7 +15,7 @@ import java.io.*;
 import java.sql.*;
 import org.hsql.*;
 
-public class DBInterface {
+public class DBInterface implements java.io.Serializable {
   /* Name of database */
   private String dbname;
   Connection conn = null;

@@ -15,7 +15,7 @@ import java.util.*;
 import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
-public class PersonalCacheModuleImpl  implements PersonalCacheModule {
+public class PersonalCacheModuleImpl  implements PersonalCacheModule,java.io.Serializable {
   protected Criteria crit;
   protected Vector wgVec;
   protected CacheService cache = null;
@@ -141,11 +141,9 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
        if(result!= null) {
          log("found \"" + queryTag + "\" in cache");    
          // we found it in our cache, but we still need to notify our
-         // workgroups that we accessed the document
-         Workgroup wg;
+         // workgroups that we accessed the document       
          for(int i = 0; i < wgVec.size(); i++) {
-           wg = (Workgroup)wgVec.elementAt(i);
-           wg.accessNotify(trace, queryTag);
+           wg = (Workgroup)wgVec.elementAt(i);                      wg.accessNotify(trace, queryTag);
          }
        } else {
 				 //System.out.println("pulling from the workgroup");
@@ -153,8 +151,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
          int i;
 				 log("Number of workgroups joined are:" + wgVec.size());
          for(i = 0; i < wgVec.size(); i++) {
-           wg = (Workgroup)wgVec.elementAt(i);
-					 log("Workgroup name in the for loop:" + wg.getName());
+           wg = (Workgroup)wgVec.elementAt(i);           try {             wg = wgm.isModified(wg);           }catch (Exception e) {             log ("Server connection bad in pullFrom");                        }           log("Workgroup name in the for loop:" + wg.getName());
            result = wg.pullFrom(trace, queryTag);
            if(result != null) {
              log("got \"" + queryTag + "\" from workgroup " + wg.getName());
@@ -180,7 +177,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
    * This method is called when the criteria is applied.
    * The specified data is saved by the module.
    */  
-  
+    public String getURL() {    return this.url;  }  
   public void printJoinedWorkgroupNames(){
     String[] names = new String[wgVec.size()];
     int i = 0;
@@ -192,8 +189,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
       j = i-1;
       System.out.println(names[j]);
     }
-  }
-  
+  }  
   public void pushTo(RequestTrace trace, Cacheable x)  {
 		if(trace.getLastHop() != null){
 			if((!trace.getLastHop().equals(roleName))&&(x.key != null)) {
@@ -226,7 +222,8 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   public void createWorkgroup(String wgName) throws WGCException  {    /* if (manager == null) 
     System.out.println("MANAGER IS NULL");*/
     try {
-      wg = wgm.newWorkgroup(wgName);      wg.addMember(this);      wgVec.addElement(wg);      }catch (Exception e){      System.out.println("ERROR: Server connection problem in createWorkgroup");
+      wg = wgm.newWorkgroup(wgName);      wg.addMember(this);
+      wgm.setWorkgroup(wg);      wgVec.addElement(wg);      }catch (Exception e){      System.out.println("ERROR: Server connection problem in createWorkgroup");
       e.printStackTrace();    }  }  
   /**
    * Joins the specified workgroup.
@@ -243,7 +240,9 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   }
 	
   protected void joinWorkgroup(Workgroup wg)  {
-    wg.addMember(this);
+    wg.addMember(this);    try {      wgm.setWorkgroup(wg);     }catch (Exception e){
+      System.out.println("ERROR: Server connection problem in joinWorkgroup");
+      e.printStackTrace();    }
     wgVec.addElement(wg);
   }
   
@@ -262,16 +261,16 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   }  
   protected void leaveWorkgroup(Workgroup wg)  {
     wg.removeMember(this);
-    wgVec.removeElement(wg);
-  }
+    try {
+      wgm.setWorkgroup(wg);    }catch (Exception e){      System.out.println("ERROR: Server connection problem in leaveWorkgroup");
+      e.printStackTrace();
+    }    wgVec.removeElement(wg);  }
 
   protected void leaveAllWorkgroups()  {
-    log("leaving all workgroups");    
-    while(wgVec.size() > 0) {
-      wg = (Workgroup)wgVec.elementAt(0);
-      wg.removeMember(this);
-      wgVec.removeElementAt(0);
-    }
+    log("leaving all workgroups");        
+    while(wgVec.size() > 0) {      wg = (Workgroup)wgVec.elementAt(0);      wg.removeMember(this);      try {        wgm.setWorkgroup(wg);
+      }catch (Exception e){        System.out.println("ERROR: Server connection problem in leaveWorkgroup");        e.printStackTrace();
+      }      wgVec.removeElementAt(0);    }
   }
   public Workgroup[] workgroups()  {
     Workgroup[] retval = new Workgroup[wgVec.size()];
@@ -292,7 +291,7 @@ public class PersonalCacheModuleImpl  implements PersonalCacheModule {
   }
 
   protected void finalize()  {
-    leaveAllWorkgroups();
+    //leaveAllWorkgroups();
     //manager.removePCM(this);
   }
 }

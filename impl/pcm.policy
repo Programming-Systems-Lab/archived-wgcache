@@ -1,6 +1,6 @@
 grant {
   permission java.net.SocketPermission "*:1024-65535","connect";
   permission java.lang.RuntimePermission "*";
-  permission java.io.FilePermission "*","read,write";
+  permission java.io.FilePermission "*","read,write,delete";
 };
 

@@ -57,8 +57,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 				log("JUST CEHCKING");
 				log("MEMBER PCM :"+ memPCM.getName());
 				try {
-					result = memPCM.query(cname);				
-					if(result != null){
+					result = memPCM.query(cname);	          if(result != null){
 						log("Result from other pcm:" + result);
 						break;
 					}
@@ -99,7 +98,13 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 			crit.apply(critInfo);
 		}
   }  
-    public boolean compareTo (Workgroup fromClient) {    return(this.memberVec.size() == fromClient.numMembers());
+    public boolean compareTo (Workgroup fromClient) {
+    if(fromClient == null) {
+      if (this.memberVec.size() == 0)
+        return true;
+      else return false;
+    }
+    else      return(this.memberVec.size() == fromClient.numMembers());
   }  
   public String getName()  {
     return name;
@@ -116,8 +121,7 @@ public class WorkgroupImpl implements Workgroup,java.io.Serializable {
 
   public void removeMember(PersonalCacheModule member)  {
     log("removing member " + member.getName());
-    //member.leaveWorkgroup(getName());
-    memberVec.removeElement(member);
+    //member.leaveWorkgroup(getName());    if (member!=null)      memberVec.removeElement(member);  
   }
 
   protected void removeAllMembers()  {

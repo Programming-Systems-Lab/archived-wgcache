@@ -28,14 +28,14 @@ public class CacheService implements CacheManager,java.io.Serializable  {
   public long currSize;
   public KeyWeightPair kwp;
   public static BinaryHeap bh = new BinaryHeap((int)MAX_CACHE_SIZE);
-  //public DBInterface db;  
-  public HashtableDBInterface db;  //public Hashtable db;
+  //public transient DBInterface db;  
+  public transient HashtableDBInterface db;  //public Hashtable db;
 
   public CacheService(String name) throws Exception {
-    /*Runtime.getRuntime().addShutdownHook(new Thread() {
+    Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         shutdown();
-      }    });*/
+      }    });
     System.runFinalization(); 
     currSize = 0;
     //db = new Hashtable();

@@ -7,5 +7,5 @@ public interface Workgroup extends Module {
   public void setName(String name);  public void addMember(PersonalCacheModule member);
   public void removeMember(PersonalCacheModule member);
   public PersonalCacheModule[] members();
-  public void accessNotify(RequestTrace trace, Object name);
-}
+  public void accessNotify(RequestTrace trace, Object name);  public boolean compareTo(Workgroup fromClient);
+  public int numMembers();}
