@@ -353,6 +353,6 @@ public class WGC_Manager_Visual {  private static final int MAX_WIDTH = 500;
     p.validate(); _midPanel2Scp.validate(); _midPanel2_1.validate();  }
   
   public static void main(String args[]) {
-    PCM_Visual pcmv = new PCM_Visual("PCM_Visual test");
+    WGC_Manager_Visual wgcmv = new WGC_Manager_Visual("WGC_Manager_Visual test");
   }
 }
