@@ -12,6 +12,7 @@ package psl.wgcache.impl.manager;/** Copyright (c) 2000: The Trustees of Colum
  *  
  */
 import psl.wgcache.impl.*;
+import psl.wgcache.roles.*;
 import psl.wgcache.exception.*;
 import java.io.*;
 import java.util.*;import java.net.*;
@@ -51,10 +52,10 @@ public class WGCSienaRuleEngineImpl implements Runnable, Notifiable, WGCRuleEngi
   }    public void notify(Notification n) {    Cacheable dataHandle = new Cacheable();
     AttributeValue av = n.getAttribute("Action");    if (av != null) {      String action = (av.stringValue()); 
       if (action.equals("Push")) {
-        dataHandle.key = n.getAttribute("DataHandle");        if(n.getAttribute("Workgroup").booleanValue()) {
+        dataHandle.key = n.getAttribute("DataHandle");        if(n.getAttribute("Target").stringValue().equals("Workgroup")) {
           try {
             wgm.pushToWorkGroup(n.getAttribute("Instigator").stringValue(),dataHandle,n.getAttribute("TargetName").stringValue());
-          } catch(Exception e){}        }        else {          if(n.getAttribute("Module").booleanValue()) {
+          } catch(Exception e){}        }        else {          if(n.getAttribute("Target").stringValue().equals("Module")) {
             try {
               wgm.pushToModule(n.getAttribute("Instigator").stringValue(),dataHandle,n.getAttribute("TargetName").stringValue());            } catch(Exception e) {              e.printStackTrace();            }
           }

@@ -13,8 +13,9 @@ package psl.wgcache.impl.manager;
  *  
  */
 import psl.wgcache.impl.*;
+import psl.wgcache.roles.*;
 
-class WGCRuleEngineImpl implements WGCRuleEngine {
+public class WGCRuleEngineImpl implements WGCRuleEngine {
   
   WorkgroupManagerImpl wgm;
   
