@@ -53,9 +53,9 @@ public class CacheService implements Serializable  {
     Object result = db.get(queryTag);
     if(result == null) {
       System.out.println(serviceName + ":query(MISS)\" " + queryTag);
-			//throw new WGCException("MISS");
-		}else 
-      System.out.println(serviceName + ": query(HIT) \"" + queryTag + "\" --- " + result);
+			// throw new WGCException("MISS");
+		} else 
+      System.out.println(serviceName + ": query(HIT) \"" + queryTag + "\" --- ");
 		return result; 
   }
   

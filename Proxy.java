@@ -103,15 +103,12 @@ public class Proxy extends Thread {
          System.out.println("Hit! Getting from cache!!!");
 
         // Send the bits to client
-        byte data[] = ((String)retVal.data).getBytes();
-        int count = data.length;
-        // System.out.println("The data from the cache recieved is: " + data + "and the count is : " + count);
+        byte data[] = ((String) retVal.data).getBytes();            
+        // System.out.println(" * * * The data from the cache recieved is: " + data + "and the count is : " + data.length);
         OutputStream out = ClientSocket.getOutputStream();
-        while (-1 < count){
-        	out.write(data);
-        }
+        out.write(data);
         out.flush();
-        System.out.println("Out of the loop after writing the bytes");
+        // System.out.println("Out of the loop after writing the bytes");
       }
 			 /* if (cache.IsCached(url.toString())) {
 				//
@@ -265,7 +262,7 @@ public class Proxy extends Thread {
 							
 							// Write bits to file
 							fileOutputStream.write(line);
-              System.out.println("The line being written to the file is : " + line);
+              // System.out.println("The line being written to the file is : " + line);
               
               payloadForCache = payloadForCache.concat(new String(line));
 							cache.DecrementFreeSpace(line.length,url.toString());
@@ -294,13 +291,17 @@ public class Proxy extends Thread {
 						System.arraycopy(data,0,line,0,count);
             payloadForCache = payloadForCache.concat(new String(line));
 						fileOutputStream.write(line);
-            System.out.println("LINE : " + line);
+            // System.out.println("LINE : " + line);
 						cache.DecrementFreeSpace(count,url.toString());
 					}
 				}
 				out.flush();
-        Cacheable toBeCached = new Cacheable(url.toString(),payloadForCache,payloadForCache.length());
-        Daemon.pcm.put(toBeCached);                
+        
+        if (payloadForCache != null) {
+          Cacheable toBeCached = new Cacheable(url.toString(),payloadForCache,payloadForCache.length());
+          Daemon.pcm.put(toBeCached);
+        }
+        
 				if (isCachable) {
           fileOutputStream.close();
           // Add new entry to hash table
@@ -470,7 +471,7 @@ public class Proxy extends Thread {
      *
      * @return the deproxied url
      */
-    private String serverUrl(String str)	{      System.out.println("ServerUrl: reached inside serverURL with _url: " + str);   
+    private String serverUrl(String str)	{      // System.out.println("ServerUrl: reached inside serverURL with _url: " + str);   
         int i = str.indexOf("//");   
         if (i< 0){          System.out.println("ServerUrl: did not find // in the url");
           return str;          

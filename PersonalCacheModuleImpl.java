@@ -100,7 +100,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
   }
   
   public Object put(Cacheable x) { 
-    Object retVal = null;    System.out.println("DATA BEING CACHED : " + x.key + " " + x.data);
+    Object retVal = null;    // System.out.println("DATA BEING CACHED : " + x.key + " " + x.data);
     retVal = genericPut(x);
     try {
       wgm.accessNotify(roleName, x);
