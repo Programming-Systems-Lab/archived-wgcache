@@ -221,7 +221,7 @@ public class HttpReplyHdr {  static String CR="\r\n";  static String HTTP_PROT
   }   
 
   /**
-  * Indicates the request took to long.
+  * Indicates the request took too long.
   *
   * @return    The header in a string;
   */

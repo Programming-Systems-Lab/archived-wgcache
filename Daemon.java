@@ -24,7 +24,6 @@ public class Daemon extends Thread  {
   static String adminPath;
   public static PersonalCacheModuleImpl pcm;
   static String args[];
-  static boolean done = false;
   int daemonPort = 0;
   int tempDaemonPort =0;
   
@@ -34,96 +33,72 @@ public class Daemon extends Thread  {
   public Daemon (PersonalCacheModuleImpl _p) {
     pcm = _p;
   }
-  //
-  // Member methods
-  //
 
-  // Application starts here
-  // public static void main(String args[])   {
-  public void run(){    
-    // Parse command line
-    /* switch (args.length) {
-    case 0: daemonPort = defaultDaemonPort;
-            break;
-    case 1: try {
-            daemonPort = Integer.parseInt(args[0]);
-            } catch (NumberFormatException e) {
-              System.out.println("Error: Invalid daemon port");
-              return;
-            }
-            if (daemonPort > maxDaemonPort)  {
-              System.out.println("Error: Invalid daemon port");
-              return;
-            }
-            break;
-    default:System.out.println("Usage: Proxy [daemon port]");
-            return;
-    }*/
-    if (!done) {
-      try		{
-        // Create the Cache Manager and Configuration objects
+  public void run() {
+    try	{
+      // Create the Cache Manager and Configuration objects
+      System.out.println("Initializing...");
 
-        System.out.println("Initializing...");
-
-        // Create main socket
-        daemonPort = defaultDaemonPort;
-        while (daemonPort < 65536) {
-          try {
-            MainSocket = new ServerSocket(daemonPort);
-            System.out.print("Creating Daemon Socket...");
-            System.out.println(" port " + daemonPort + " OK");
-            System.out.println("Proxy [daemon port] : " + daemonPort);
-            done = true;
-            break;
-          } catch (IOException e) {
-            daemonPort++;
-            // System.out.println("Error opening daemon socket");
-          }
-        }
-
-        
-        System.out.print("Creating Config Object...");
-        config = new Config();
-        config.setIsAppletContext(false);
-        config.setLocalHost(InetAddress.getLocalHost().getHostName());
-        String tmp = InetAddress.getLocalHost().toString();
-        config.setLocalIP(tmp.substring(tmp.indexOf('/')+1));
-        config.setProxyMachineNameAndPort(InetAddress.getLocalHost().getHostName()+":"+daemonPort);
-        File adminDir = new File("Applet");
-        config.setAdminPath(adminDir.getAbsolutePath());
-        System.out.println("OK");
-
-        System.out.print("Creating Cache Manager...");
-        cache = new Cache(config);
-        System.out.println("OK");
-
-        // Start the admin thread
-        System.out.print("Creating Admin Thread...");
-        Admin adminThd = new Admin(config,cache); 
-        adminThd.start();
-        System.out.println(" port " + config.getAdminPort() + " OK");
-        			
-        if (config.getIsFatherProxy()) { 
-          System.out.println("Using Father Proxy "+ config.getFatherProxyHost()+ ":"+config.getFatherProxyPort()+" .");
-        } else {
-          System.out.println("Not Using Father Proxy .");
-        }
-        System.out.println("Proxy up and running!");
-        
-        // Main loop
-        while (true) {
-          // Listen on main socket
-          Socket ClientSocket = MainSocket.accept();
-          // Pass request to new proxy thread
-          Proxy thd = new Proxy(ClientSocket,cache,config);
-          thd.start();
+      // Create main socket
+      daemonPort = defaultDaemonPort;
+      while (daemonPort < 65536) {
+        try {
+          MainSocket = new ServerSocket(daemonPort);
+          System.out.print("Creating Daemon Socket...");
+          System.out.println(" port " + daemonPort + " OK");
+          System.out.println("Proxy [daemon port] : " + daemonPort);
+          break;
+        } catch (IOException e) {
+          daemonPort++;
+          // System.out.println("Error opening daemon socket");
         }
       }
-      catch (Exception e)	{}
-      finally {
-        try	{
-          MainSocket.close();
-        } catch (Exception exc)	{}
+
+        
+      System.out.print("Creating Config Object...");
+      config = new Config();
+      config.setIsAppletContext(false);
+      config.setLocalHost(InetAddress.getLocalHost().getHostName());
+      String tmp = InetAddress.getLocalHost().toString();
+      config.setLocalIP(tmp.substring(tmp.indexOf('/')+1));
+      config.setProxyMachineNameAndPort(InetAddress.getLocalHost().getHostName()+":"+daemonPort);
+      File adminDir = new File("Applet");
+      config.setAdminPath(adminDir.getAbsolutePath());
+      System.out.println("OK");
+
+      System.out.print("Creating Cache Manager...");
+      cache = new Cache(config);
+      System.out.println("OK");
+
+      // Start the admin thread
+      System.out.print("Creating Admin Thread...");
+      Admin adminThd = new Admin(config,cache); 
+      adminThd.start();
+      System.out.println(" port " + config.getAdminPort() + " OK");
+        			
+      if (config.getIsFatherProxy()) { 
+        System.out.println("Using Father Proxy "+ config.getFatherProxyHost()+ ":"+config.getFatherProxyPort()+" .");
+      } else {
+        System.out.println("Not Using Father Proxy .");
+      }
+        
+      // Main loop
+      System.out.println("Proxy up and running!");
+      while (true) {
+        System.out.println("Listen on main socket");
+        Socket ClientSocket = MainSocket.accept();
+        System.out.println("got a connection ... ");
+        // Pass request to new proxy thread
+        Proxy thd = new Proxy(ClientSocket,cache,config);
+        thd.start();
+      }
+    } catch (Exception e)	{
+      e.printStackTrace();
+    } finally {
+      try	{
+        MainSocket.close();
+      } catch (Exception exc)	{
+        exc.printStackTrace();
       }
     }
   }

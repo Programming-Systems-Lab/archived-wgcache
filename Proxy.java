@@ -17,7 +17,7 @@ public class Proxy extends Thread {
 	// Member variables
 	//
 	Socket ClientSocket = null;              // Socket to client
-	Socket SrvrSocket = null;                 // Socket to web server
+	Socket SrvrSocket = null;                // Socket to web server
   Cache  cache = null;                     // Static cache manager object 
 	String localHostName = null;             // Local machine name
 	String localHostIP = null;               // Local machine IP address
@@ -137,7 +137,13 @@ public class Proxy extends Thread {
           System.out.println("Miss! Forwarding to server "+
           serverName + "...");
           config.increaseMisses();
-          SrvrSocket = new Socket(serverName(request.url),serverPort(request.url));
+          // System.out.println("PROXY:Sending Request to the server url: " + serverName(request.url) + serverPort(request.url));
+          try {
+            SrvrSocket = new Socket(serverName(request.url),serverPort(request.url));
+          } catch(Exception e) {
+            e.printStackTrace();
+          }
+          System.out.println("after sending request to the server");
           request.url = serverUrl(request.url);
 				}
            
@@ -151,13 +157,10 @@ public class Proxy extends Thread {
 				//
 				// Send data to server (needed for post method)
 				//
-				for (int i =0; i < request.contentLength; i++)
-				{
+				for (int i =0; i < request.contentLength; i++) {
 				   SrvrSocket.getOutputStream().write(ClientSocket.getInputStream().read());    
 				}
-				SrvrSocket.getOutputStream().flush(); 
-
-
+				SrvrSocket.getOutputStream().flush();         // System.out.println("PROXY: SENDING Request to the server url: " + request.url + serverPort(request.url));
 				//
 				// Find if reply should be cached - 
 				//   First, check if caching is on.
@@ -200,7 +203,11 @@ public class Proxy extends Thread {
 				}
         if (isCachable) {
 					System.out.println("Caching the reply...");
-					fileOutputStream = cache.getFileOutputStream(url.toString());
+          try {
+            fileOutputStream = cache.getFileOutputStream(url.toString());
+          }catch (Exception e) {
+            e.printStackTrace();
+          }
 				}
 				else {
 					System.out.println("NOT Caching the reply. Reason:"
@@ -312,7 +319,9 @@ public class Proxy extends Thread {
 				ClientSocket.getOutputStream().flush();
 				ClientSocket.close();
 			}
-			catch (Exception e) {} 
+			catch (Exception e) {
+        e.printStackTrace();
+      } 
 		}
     }
 
@@ -434,19 +443,15 @@ public class Proxy extends Thread {
     }  
 
     /**
-     * Find the /some/file.xxxx form http://server.ect:PORT/some/file.xxx
+     * Find the /some/file.xxxx from http://server.ect:PORT/some/file.xxx
      *
      * @return the deproxied url
      */
-    private String serverUrl(String str)
-	{
+    private String serverUrl(String str)	{      System.out.println("ServerUrl: reached inside serverURL with _url: " + str);   
         int i = str.indexOf("//");   
-        if (i< 0) return str;   
-
-        str = str.substring(i+2);
+        if (i< 0){          System.out.println("ServerUrl: did not find // in the url");
+          return str;          
+        }        str = str.substring(i+2);
         i = str.indexOf("/");   
-        if (i< 0) return str;  
-
-        return str.substring(i);   
-    }
-}
+        if (i< 0) {           System.out.println("ServerUrl: did not find // in the url");          return str;        }        return str.substring(i);   
+    }}

@@ -40,6 +40,5 @@ public class AlpaWGC {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    }
-  }
+    }  }
 }

@@ -128,12 +128,16 @@ public class Cache {
     public FileOutputStream getFileOutputStream(String rawUrl) 	{
 		FileOutputStream out = null;
 		String filename;
-		try  {
-		    filename = getFileName(rawUrl);
-
+    System.out.print(" getting FileName :");
+    filename = getFileName(rawUrl);      
+    System.out.print("FileName :" + filename);
+    try  {
 			out = new FileOutputStream(filename);
+      System.out.print("after fileoutstream");
     }
-		catch (IOException e) {}
+		catch (Exception e) {
+      e.printStackTrace();
+    }
 		finally {
 			return out;
 		}
