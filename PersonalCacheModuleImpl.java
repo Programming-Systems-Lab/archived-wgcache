@@ -33,17 +33,18 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
   private Properties prop; 
   private String url;
   private String wgName = null;
-  
+  private Daemon proxyDaemon;  
   /**
    * Constructs a new Cache Module with the specified roleName.
    */      
   public PersonalCacheModuleImpl(String roleName){
-    this.filename = "WorkgroupServer.conf";  // hardcoded! bad, needs to be passed as an argument....
-    this.prop = new Properties();
-    this.wgVec = new Vector();
+    filename = "WorkgroupServer.conf";  // hardcoded! bad, needs to be passed as an argument....
+    prop = new Properties();
+    wgVec = new Vector();
     this.roleName = roleName;
+    proxyDaemon = new Daemon(this);    proxyDaemon.start();
     try {
-      this.url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
+      url = InetAddress.getLocalHost().getHostName()+ "/" + roleName;
       RMI_PCMImpl rpcmi = new RMI_PCMImpl(this);
       log(url);
     }catch (Exception e) {}
@@ -63,12 +64,11 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
         managerUrl = "rmi://disco.cs.columbia.edu/manager";
       //System.out.println("URL IS:" + url);
       //manager = new ManagerImpl();      
-      this.wgm = (WorkgroupManager)Naming.lookup(managerUrl);    
+      wgm = (WorkgroupManager)Naming.lookup(managerUrl);    
     }catch (Exception e) {
        System.out.println("ERROR: Could not connect to the server");      
        e.printStackTrace();
-     }
-  }
+     }  }
   
   public String getName() {                    
     return roleName;
@@ -160,7 +160,11 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
       log("queryData provided is null");
     }
     return retVal;
- }
+ }    public void accessNotifyURL(String _x) {    Cacheable _c = new Cacheable();    _c.key = _x;
+    try {
+      wgm.accessNotify(roleName, _c);    
+    }catch(Exception e) {      System.out.println("ERROR: while accessNotifying the WGM about a URL");
+    }  }
 
   public void pushToWorkgroup(Cacheable toBePushed){		
     for(int i = 0; i < wgVec.size(); i++) {
@@ -280,7 +284,7 @@ public class PersonalCacheModuleImpl implements PersonalCacheModule {
 
   public void createWorkgroup(String wgName) throws WGCException {
     /* if (manager == null) 
-    System.out.println("MANAGER IS NULL");*/
+    System.out.println("MANAGER IS NULL");*/    System.out.println("ROLENAME : " + getName());
     try {
       wgm.newWorkgroup(wgName);
       wgm.joinWorkgroup(wgName, url,roleName);

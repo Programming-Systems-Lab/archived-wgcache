@@ -19,9 +19,6 @@ package psl.wgcache;
  * @author  Alpa
  *  
  */
-
-
-
  /*****************************************************************
 
   wgm.newWorkgroup(wgName);
@@ -178,18 +175,9 @@ public class WorkgroupManagerImpl extends UnicastRemoteObject implements java.io
     Workgroup wg = getWorkgroup(wgName);       
 
     wg.pushToMember(dataSrc,toBePushed,memName);
-
-
-
   }
-
-  
-
-  public void accessNotify(String pcmName, Cacheable data) throws RemoteException {
-
-    wgRule.what_do_i_do_next(pcmName,data);
-
-  }
+  public void accessNotify(String pcmName, Cacheable data) throws RemoteException {
+    wgRule.what_do_i_do_next(pcmName,data);  }
 
   
 
